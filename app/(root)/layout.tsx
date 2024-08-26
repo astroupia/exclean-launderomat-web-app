@@ -5,7 +5,7 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
-import "./globals.css";
+import "@/app/globals.css";
 import Nav from "@/components/ui/Nav";
 import Footer from "@/components/shared/Footer";
 import { Metadata } from "next";
@@ -21,10 +21,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body>{children}</body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body>
+        <Nav />
+        {children}
+        <Footer />
+      </body>
+    </html>
   );
 }
