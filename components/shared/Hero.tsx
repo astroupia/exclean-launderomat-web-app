@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import Button from "../ui/Button";
 
 const Hero: React.FC = () => {
   return (
@@ -14,12 +15,10 @@ const Hero: React.FC = () => {
           Do your own stuff we will clean it up!
         </h3>
         <p className="text-base md:text-lg text-slate-700 my-4 md:my-6">
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nam nobis in
-          error repellat voluptatibus ad.
+          We work to provide a simple, consistent, high-quality solution to take
+          care of everything in your closet.
         </p>
-        <button className="bg-indigo-500 text-white font-medium py-2 px-4 rounded transition-all hover:bg-indigo-600 active:scale-95">
-          Your First Order
-        </button>
+        <Button content="Your First Order!" />
       </div>
       <ShuffleGrid />
     </section>

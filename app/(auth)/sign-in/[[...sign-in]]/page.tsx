@@ -3,9 +3,11 @@ import { SignIn } from "@clerk/nextjs";
 
 const page = () => {
   return (
-    <div>
-      <SignIn />
-    </div>
+    <>
+      <section className="h-dvh bg-white m-100 flex justify-center items-center">
+        <SignIn />
+      </section>
+    </>
   );
 };
 

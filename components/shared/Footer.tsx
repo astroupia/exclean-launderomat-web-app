@@ -1,35 +1,29 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/IDPt1WU5BXu
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
 import Link from "next/link";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="ml-20 mr-20 bg-muted py-12 text-muted-foreground">
+    <footer className="mx-20 bg-muted py-12 text-muted-foreground">
       <div className="container grid grid-cols-1 gap-8 md:grid-cols-3">
         <div className="space-y-4">
           <h4 className="text-indigo-600 text-lg font-medium">Contact</h4>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="font-medium">Phone:</span> (123) 456-7890
+              <span className="font-medium">Phone:</span> (+251) 94567-7890
             </div>
             <div>
-              <span className="font-medium">Email:</span> info@example.com
+              <span className="font-medium">Email:</span> info@exclean.com
             </div>
             <div>
-              <span className="font-medium">Address:</span> 123 Main St, Anytown
-              USA
+              <span className="font-medium">Address:</span> Addis Ababa,
+              Ethiopia
             </div>
           </div>
         </div>
         <div className="space-y-4">
           <h4 className="text-indigo-600 text-lg font-medium">About</h4>
           <p className="text-sm">
-            We are a leading provider of innovative solutions for businesses of
-            all sizes. Our mission is to help our clients succeed by delivering
-            high-quality products and exceptional customer service.
+            We work to provide a simple, consistent, high-quality solution to
+            take care of everything in your closet.
           </p>
         </div>
         <div className="space-y-4">
@@ -63,14 +57,14 @@ const Footer: React.FC = () => {
         </div>
       </div>
       <div className="mt-8 border-t pt-8 text-center text-xs">
-        <p>Lorem ipsum</p>
+        <p>Exclean Laundermat</p>
         <p>
           <Link href="#" className="hover:underline" prefetch={false}>
-            Terms of Service
+            All Rights Reserved
           </Link>
-          |{" "}
+          {"   "}
           <Link href="#" className="hover:underline" prefetch={false}>
-            Privacy Policy
+            &copy; 2024
           </Link>
         </p>
       </div>
