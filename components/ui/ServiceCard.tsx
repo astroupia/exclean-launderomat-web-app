@@ -54,7 +54,7 @@ const services = [
 export default function ServiceCard() {
   return (
     <section className="bg-background py-12 md:py-20">
-      <div className="ml-20 container flex justify-center items-center flex-wrap gap-8">
+      <div className="mx-20 container flex justify-center items-center flex-wrap gap-8">
         {services.map((service, index) => (
           <div
             key={index}
