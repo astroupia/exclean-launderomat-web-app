@@ -25,7 +25,9 @@ export default function RootLayout({
       <body>
         <Nav />
         {children}
-        <Footer />
+        <div id="contact">
+          <Footer />
+        </div>
       </body>
     </html>
   );
