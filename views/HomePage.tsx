@@ -6,7 +6,9 @@ const HomePage = () => {
   return (
     <div>
       <Hero />
-      <ServiceCard />
+      <div id="services">
+        <ServiceCard />
+      </div>
     </div>
   );
 };
