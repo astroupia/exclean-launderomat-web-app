@@ -1,5 +1,3 @@
-"use server";
-
 import { handleError } from "@/lib/utils";
 import User from "@/models/user";
 import { CreateUserPramas, UpdateUserPramas } from "@/types";

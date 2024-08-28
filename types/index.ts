@@ -1,7 +1,7 @@
 export type CreateUserPramas = {
   clerkId: String;
   email: String;
-  role: String;
+  role?: String;
   firstName: String;
   lastName: String;
 };
