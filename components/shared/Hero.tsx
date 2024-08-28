@@ -12,7 +12,7 @@ const Hero: React.FC = () => {
           Better every day
         </span>
         <h3 className="text-4xl md:text-6xl font-semibold text-indigo-500">
-          Do your own stuff we will clean it up!
+          Do your own stuff; we will clean it up!
         </h3>
         <p className="text-base md:text-lg text-slate-700 my-4 md:my-6">
           We work to provide a simple, consistent, high-quality solution to take
@@ -25,11 +25,11 @@ const Hero: React.FC = () => {
   );
 };
 
-const shuffle = (array: string[]) => {
+const shuffle = <T,>(array: T[]): T[] => {
   let currentIndex = array.length,
     randomIndex;
 
-  while (currentIndex != 0) {
+  while (currentIndex !== 0) {
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex--;
 
@@ -41,8 +41,12 @@ const shuffle = (array: string[]) => {
 
   return array;
 };
+interface ISquare {
+  id: number;
+  src: string;
+}
 
-const squareData = [
+const squareData: ISquare[] = [
   {
     id: 1,
     src: "https://images.unsplash.com/photo-1547347298-4074fc3086f0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80",
@@ -119,30 +123,37 @@ const generateSquares = () => {
       style={{
         backgroundImage: `url(${sq.src})`,
         backgroundSize: "cover",
+        willChange: "transform",
       }}
     ></motion.div>
   ));
 };
 
 const ShuffleGrid: React.FC = () => {
-  const timeoutRef = useRef(null);
-  const [squares, setSquares] = useState(generateSquares());
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [squares, setSquares] = useState<JSX.Element[]>(generateSquares());
 
   useEffect(() => {
-    shuffleSquares();
+    const handleShuffle = () => {
+      setSquares(generateSquares());
+    };
 
-    return () => clearTimeout(timeoutRef.current);
+    const startInterval = () => {
+      timeoutRef.current = setInterval(handleShuffle, 4000);
+    };
+
+    startInterval();
+
+    return () => {
+      if (timeoutRef.current) {
+        clearInterval(timeoutRef.current);
+      }
+    };
   }, []);
 
-  const shuffleSquares = () => {
-    setSquares(generateSquares());
-
-    timeoutRef.current = setTimeout(shuffleSquares, 3000);
-  };
-
   return (
-    <div className="grid grid-cols-4 grid-rows-4 h-[450px] gap-1">
-      {squares.map((sq) => sq)}
+    <div className="w-full h-full grid grid-cols-4 gap-2 md:gap-4">
+      {squares}
     </div>
   );
 };

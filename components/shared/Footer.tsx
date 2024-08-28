@@ -1,9 +1,12 @@
 import Link from "next/link";
+import React from "react";
 
+// Define the Footer component
 const Footer: React.FC = () => {
   return (
     <footer className="mx-20 bg-muted py-12 text-muted-foreground">
       <div className="container grid grid-cols-1 gap-8 md:grid-cols-3">
+        {/* Contact Section */}
         <div className="space-y-4">
           <h4 className="text-indigo-600 text-lg font-medium">Contact</h4>
           <div className="space-y-2 text-sm">
@@ -19,6 +22,8 @@ const Footer: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* About Section */}
         <div className="space-y-4">
           <h4 className="text-indigo-600 text-lg font-medium">About</h4>
           <p className="text-sm">
@@ -26,6 +31,8 @@ const Footer: React.FC = () => {
             take care of everything in your closet.
           </p>
         </div>
+
+        {/* Get Started Section */}
         <div className="space-y-4">
           <h4 className="text-indigo-600 text-lg font-medium">Get Started</h4>
           <div className="space-y-2 text-sm">
@@ -56,13 +63,14 @@ const Footer: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Footer Bottom Section */}
       <div className="mt-8 border-t pt-8 text-center text-xs">
         <p>Exclean Laundermat</p>
         <p>
           <Link href="#" className="hover:underline" prefetch={false}>
             All Rights Reserved
-          </Link>
-          {"   "}
+          </Link>{" "}
           <Link href="#" className="hover:underline" prefetch={false}>
             &copy; 2024
           </Link>
@@ -74,7 +82,8 @@ const Footer: React.FC = () => {
 
 export default Footer;
 
-function LogInIcon(props) {
+// LogInIcon component
+function LogInIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -95,7 +104,8 @@ function LogInIcon(props) {
   );
 }
 
-function RocketIcon(props) {
+// RocketIcon component
+function RocketIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -117,7 +127,8 @@ function RocketIcon(props) {
   );
 }
 
-function UserPlusIcon(props) {
+// UserPlusIcon component
+function UserPlusIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
