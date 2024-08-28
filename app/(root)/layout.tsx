@@ -1,10 +1,3 @@
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
 import "@/app/globals.css";
 import Nav from "@/components/ui/Nav";
 import Footer from "@/components/shared/Footer";
