@@ -152,7 +152,7 @@ const ShuffleGrid: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full h-full grid grid-cols-4 gap-2 md:gap-4">
+    <div className="grid grid-cols-4 grid-rows-4 h-[450px] gap-1">
       {squares}
     </div>
   );
