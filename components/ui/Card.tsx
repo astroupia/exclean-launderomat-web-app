@@ -18,7 +18,13 @@ export const CardHeader: React.FC<{
   children: ReactNode;
   className?: string;
 }> = ({ children, className }) => {
-  return <div className={`border-b pb-3 mb-4, ${className}`}>{children}</div>;
+  return (
+    <div
+      className={`ml-2 font-bold text-xl text-indigo-600 border-b pb-3 mb-4, ${className}`}
+    >
+      {children}
+    </div>
+  );
 };
 
 // Card Title component

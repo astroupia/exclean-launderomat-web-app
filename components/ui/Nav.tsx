@@ -3,8 +3,6 @@
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import React, { useState } from "react";
 import { MenuItems, Menu, ProductItem } from "@/components/shared/Menu";
-import Image from "next/image";
-import Logo from "@/public/assets/images/Logo.png";
 import Link from "next/link";
 import Button from "./Button";
 
@@ -16,7 +14,6 @@ const Nav: React.FC = () => {
       <div className="bg-white">
         <section className="mx-20 flex items-center justify-center">
           <Link href="/">
-            {/* <Image src={Logo} width={50} height={50} alt="" /> */}
             <h1 className="text-l font-bold text-indigo-700">Exclean</h1>
           </Link>
           <Menu setActive={setActive}>

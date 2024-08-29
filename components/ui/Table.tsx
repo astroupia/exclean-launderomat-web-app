@@ -1,6 +1,7 @@
 import { FC, ReactNode } from "react";
 
 interface TableProps {
+  content?: String;
   children: ReactNode;
   className?: string;
 }
@@ -13,8 +14,17 @@ export const Table: FC<TableProps> = ({ children, className }) => {
   );
 };
 
-export const TableHeader: FC<TableProps> = ({ children, className }) => {
-  return <thead className={`bg-gray-100 ${className}`}>{children}</thead>;
+export const TableHeader: FC<TableProps> = ({
+  content,
+  children,
+  className,
+}) => {
+  return (
+    <thead className={`text-indigo-600 bg-gray-100 ${className}`}>
+      <h2>{content}</h2>
+      {children}
+    </thead>
+  );
 };
 
 export const TableRow: FC<TableProps> = ({ children, className }) => {
@@ -37,6 +47,8 @@ export const TableBody: FC<TableProps> = ({ children, className }) => {
 
 export const TableCell: FC<TableProps> = ({ children, className }) => {
   return (
-    <td className={`px-6 py-4 whitespace-nowrap ${className}`}>{children}</td>
+    <td className={`px-6 py-4 whitespace-nowrap text-gray-700 ${className}`}>
+      {children}
+    </td>
   );
 };
