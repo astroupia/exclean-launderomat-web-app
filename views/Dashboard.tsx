@@ -14,53 +14,35 @@ import {
   TableCell,
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
-
-type Order = {
-  id: number;
-  customer: string;
-  date: string;
-  time: string;
-  frequency: string;
-  status: string;
-  payment: {
-    method: string;
-    amount: number;
-    status: string;
-  };
-};
-
-type InventoryItem = {
-  id: number;
-  item: string;
-  quantity: number;
-};
-
-type Payment = {
-  id: number;
-  customer: string;
-  amount: number;
-  method: string;
-  status: string;
-};
+import { PaymentParam, InventoryItemParam, OrderParam } from "@/types";
+import AdminOrders from "@/components/shared/AdminOrders";
+import AdminInventory from "@/components/shared/AdminInventory";
+import AdminPayments from "@/components/shared/AdminPayments";
 
 export default function Dashboard() {
-  const [view, setView] = useState<"customer" | "admin">("customer");
+  const [view, setView] = useState<"customer" | "admin">("admin");
   const [userRole, setUserRole] = useState<"customer" | "admin">("customer");
-  const [orders, setOrders] = useState<Order[]>([
+  const [orders, setOrders] = useState<OrderParam[]>([
     // Sample orders
   ]);
-  const [inventory, setInventory] = useState<InventoryItem[]>([
-    // Sample inventory
+  const [inventory, setInventory] = useState<InventoryItemParam[]>([
+    { id: 1, item: "string", quantity: 10 },
   ]);
-  const [payments, setPayments] = useState<Payment[]>([
-    // Sample payments
+  const [payments, setPayments] = useState<PaymentParam[]>([
+    {
+      id: 1,
+      customer: "Nahom",
+      amount: 200.0,
+      method: "Upload",
+      status: "approved",
+    },
   ]);
 
-  const handleOrderRequest = (order: Order) => {
+  const handleOrderRequest = (order: OrderParam) => {
     setOrders([...orders, order]);
   };
 
-  const handlePaymentUpload = (payment: Payment) => {
+  const handlePaymentUpload = (payment: PaymentParam) => {
     setPayments([...payments, payment]);
   };
 
@@ -72,7 +54,10 @@ export default function Dashboard() {
     );
   };
 
-  const handleInventoryUpdate = (item: InventoryItem, quantity: number) => {
+  const handleInventoryUpdate = (
+    item: InventoryItemParam,
+    quantity: number
+  ) => {
     setInventory(
       inventory.map((i) => (i.id === item.id ? { ...i, quantity } : i))
     );
@@ -85,11 +70,9 @@ export default function Dashboard() {
 
   return (
     <section className="bg-indigo mx-20">
-      <div className="flex flex-col h-screen">
-        <header className="bg-primary text-primary-foreground py-4 px-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Cleaning Dashboard</h1>
-            {userRole === "admin" ? (
+      <header className="bg-primary text-primary-foreground py-4 px-6">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        {/* {userRole === "admin" ? (
               <div className="mx-20 flex gap-4">
                 <Button
                   content="Customer"
@@ -107,10 +90,10 @@ export default function Dashboard() {
                 <Button content="Order Cleaning" />
                 <Button content="Upload Payment" />
               </div>
-            )}
-          </div>
-        </header>
+            )} */}
+      </header>
 
+      <div className="flex flex-col h-screen">
         {view === "customer" && userRole === "customer" && (
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
             {/* Customer View Components */}
@@ -123,15 +106,21 @@ export default function Dashboard() {
         {view === "admin" && userRole === "admin" && (
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
             {/* Admin View Components */}
-            <AdminOrders orders={orders} />
-            <AdminInventory
-              inventory={inventory}
-              handleInventoryUpdate={handleInventoryUpdate}
-            />
-            <AdminPayments
-              payments={payments}
-              handlePaymentApproval={handlePaymentApproval}
-            />
+            <div className="m-5 w-1/2">
+              <AdminOrders orders={orders} />
+            </div>
+            <div className="m-5">
+              <AdminInventory
+                inventory={inventory}
+                handleInventoryUpdate={handleInventoryUpdate}
+              />{" "}
+            </div>
+            <div className="m-5">
+              <AdminPayments
+                payments={payments}
+                handlePaymentApproval={handlePaymentApproval}
+              />
+            </div>
           </div>
         )}
       </div>
@@ -144,7 +133,7 @@ export default function Dashboard() {
 function CustomerOrderForm({
   handleOrderRequest,
 }: {
-  handleOrderRequest: (order: Order) => void;
+  handleOrderRequest: (order: OrderParam) => void;
 }) {
   return (
     <Card>
@@ -155,7 +144,7 @@ function CustomerOrderForm({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const order: Order = {
+            const order: OrderParam = {
               id: Date.now(), // Use a better ID in production
               customer: "John Doe",
               date: "2023-06-01",
@@ -200,7 +189,7 @@ function CustomerOrderForm({
 function CustomerPaymentForm({
   handlePaymentUpload,
 }: {
-  handlePaymentUpload: (payment: Payment) => void;
+  handlePaymentUpload: (payment: PaymentParam) => void;
 }) {
   return (
     <Card>
@@ -211,7 +200,7 @@ function CustomerPaymentForm({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const payment: Payment = {
+            const payment: PaymentParam = {
               id: Date.now(), // Use a better ID in production
               customer: "John Doe",
               amount: 50,
@@ -237,7 +226,7 @@ function CustomerPaymentForm({
   );
 }
 
-function CustomerOrderStatus({ orders }: { orders: Order[] }) {
+function CustomerOrderStatus({ orders }: { orders: OrderParam[] }) {
   return (
     <Card>
       <CardHeader>
@@ -288,165 +277,6 @@ function CustomerOrderStatus({ orders }: { orders: Order[] }) {
                     {order.payment.status}
                   </Badge>
                 </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
-}
-
-function AdminOrders({ orders }: { orders: Order[] }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Orders</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Time</TableHead>
-              <TableHead>Frequency</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Payment</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{order.customer}</TableCell>
-                <TableCell>{order.date}</TableCell>
-                <TableCell>{order.time}</TableCell>
-                <TableCell>{order.frequency}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      order.status === "Pending"
-                        ? "warning"
-                        : order.status === "Scheduled"
-                        ? "info"
-                        : "success"
-                    }
-                  >
-                    {order.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      order.payment.status === "Pending"
-                        ? "warning"
-                        : order.payment.status === "Approved"
-                        ? "info"
-                        : "success"
-                    }
-                  >
-                    {order.payment.status}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
-}
-
-function AdminInventory({
-  inventory,
-  handleInventoryUpdate,
-}: {
-  inventory: InventoryItem[];
-  handleInventoryUpdate: (item: InventoryItem, quantity: number) => void;
-}) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Inventory Management</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Item ID</TableHead>
-              <TableHead>Item</TableHead>
-              <TableHead>Quantity</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {inventory.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.item}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
-}
-
-function AdminPayments({
-  payments,
-  handlePaymentApproval,
-}: {
-  payments: Payment[];
-  handlePaymentApproval: (paymentId: number) => void;
-}) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Payment Management</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Payment ID</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Method</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {payments.map((payment) => (
-              <TableRow key={payment.id}>
-                <TableCell>{payment.id}</TableCell>
-                <TableCell>{payment.customer}</TableCell>
-                <TableCell>${payment.amount}</TableCell>
-                <TableCell>{payment.method}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      payment.status === "Pending"
-                        ? "warning"
-                        : payment.status === "Approved"
-                        ? "info"
-                        : "success"
-                    }
-                  >
-                    {payment.status}
-                  </Badge>
-                </TableCell>
-                {payment.status === "Pending" && (
-                  <TableCell>
-                    <Button
-                      content="Approve"
-                      variant="secondary"
-                      onClick={() => handlePaymentApproval(payment.id)}
-                    />
-                  </TableCell>
-                )}
               </TableRow>
             ))}
           </TableBody>
