@@ -1,9 +1,9 @@
 import { handleError } from "@/lib/utils";
 import User from "@/models/user";
-import { CreateUserPramas, UpdateUserPramas } from "@/types";
+import { CreateUserParams, UpdateUserParams } from "@/types";
 import { connectToDatabase } from "@/utils/database";
 
-export async function createUser(user: CreateUserPramas) {
+export async function createUser(user: CreateUserParams) {
   try {
     await connectToDatabase();
 
@@ -14,7 +14,7 @@ export async function createUser(user: CreateUserPramas) {
   }
 }
 
-export async function updateUser(clerkId: String, user: UpdateUserPramas) {
+export async function updateUser(clerkId: String, user: UpdateUserParams) {
   try {
     await connectToDatabase();
 

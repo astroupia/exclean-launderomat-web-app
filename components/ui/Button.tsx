@@ -6,6 +6,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   content: string;
 }
+
 const Button: FC<ButtonProps> = ({
   children,
   variant = "primary",
