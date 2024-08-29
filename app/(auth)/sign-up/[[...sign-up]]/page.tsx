@@ -3,9 +3,11 @@ import React from "react";
 
 const page = () => {
   return (
-    <div>
-      <SignUp />
-    </div>
+    <>
+      <section className="h-dvh bg-white m-100 flex justify-center items-center">
+        <SignUp />
+      </section>
+    </>
   );
 };
 
