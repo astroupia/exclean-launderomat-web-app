@@ -37,7 +37,7 @@ const Footer: React.FC = () => {
           <h4 className="text-indigo-600 text-lg font-medium">Get Started</h4>
           <div className="space-y-2 text-sm">
             <Link
-              href="#"
+              href="/sign-up"
               className="mr-3 inline-flex items-center gap-2 hover:underline"
               prefetch={false}
             >
@@ -45,7 +45,7 @@ const Footer: React.FC = () => {
               Sign Up
             </Link>
             <Link
-              href="#"
+              href="/sign-up"
               className="m-3 inline-flex items-center gap-2 hover:underline"
               prefetch={false}
             >
@@ -53,13 +53,10 @@ const Footer: React.FC = () => {
               Log In
             </Link>
             <Link
-              href="#"
+              href="/sign-in"
               className="m-3 inline-flex items-center gap-2 hover:underline"
               prefetch={false}
-            >
-              <RocketIcon className="h-4 w-4" />
-              Key Features
-            </Link>
+            ></Link>
           </div>
         </div>
       </div>
