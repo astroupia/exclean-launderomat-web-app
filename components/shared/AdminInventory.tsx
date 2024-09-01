@@ -8,6 +8,17 @@ import {
   TableCell,
 } from "@/components/ui/Table";
 import { InventoryItemParam } from "@/types"; // Importing the type definition for inventory items
+import { useState } from "react";
+
+const [inventory, setInventory] = useState<InventoryItemParam[]>([
+  { id: 1, item: "string", quantity: 10 },
+]);
+
+const handleInventoryUpdate = (item: InventoryItemParam, quantity: number) => {
+  setInventory(
+    inventory.map((i) => (i.id === item.id ? { ...i, quantity } : i))
+  );
+};
 
 // AdminInventory component for managing the inventory
 function AdminInventory({
