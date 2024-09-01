@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import {
   Table,
@@ -10,15 +12,34 @@ import {
 import { Badge } from "@/components/ui/Badge"; // Importing the Badge component for status indicators
 import Button from "@/components/ui/Button"; // Importing the Button component for approval actions
 import { PaymentParam } from "@/types"; // Importing the type definition for payments
+import { useState } from "react";
+
+const [payments, setPayments] = useState<PaymentParam[]>([
+  {
+    id: 1,
+    customer: "Nahom",
+    amount: 200.0,
+    method: "Upload",
+    status: "approved",
+  },
+]);
+
+const handlePaymentApproval = (paymentId: number) => {
+  setPayments(
+    payments.map((payment: PaymentParam) =>
+      payment.id === paymentId ? { ...payment, status: "Approved" } : payment
+    )
+  );
+};
 
 // AdminPayments component for managing payment records
-function AdminPayments({
-  payments, // Array of payment records passed as a prop
-  handlePaymentApproval, // Function to handle payment approval passed as a prop
-}: {
+const AdminPayments: React.FC<{
   payments: PaymentParam[]; // Type definition for the payments array
   handlePaymentApproval: (paymentId: number) => void; // Type definition for the payment approval function
-}) {
+}> = ({
+  payments, // Array of payment records passed as a prop
+  handlePaymentApproval, // Function to handle payment approval passed as a prop
+}) => {
   return (
     <Card>
       {/* CardHeader for the title of the payment management section */}
@@ -75,6 +96,6 @@ function AdminPayments({
       </CardContent>
     </Card>
   );
-}
+};
 
 export default AdminPayments;
