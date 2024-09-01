@@ -1,10 +1,12 @@
 import { cn } from "@/lib/utils";
 import { ButtonHTMLAttributes, FC } from "react";
+import { ReactNode } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "outline" | "secondary";
   className?: string;
-  content: string;
+  content?: string;
+  children?: ReactNode;
 }
 
 const Button: FC<ButtonProps> = ({
@@ -28,6 +30,7 @@ const Button: FC<ButtonProps> = ({
       className={cn(baseStyles, variantStyles[variant], className)}
       {...props}
     >
+      {children}
       {content}
     </button>
   );
