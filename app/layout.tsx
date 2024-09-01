@@ -1,13 +1,5 @@
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import Nav from "@/components/ui/Nav";
-import Footer from "@/components/shared/Footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
