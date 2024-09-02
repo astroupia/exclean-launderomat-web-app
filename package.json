@@ -15,12 +15,14 @@
     "autoprefixer": "^10.4.20",
     "framer-motion": "^11.3.29",
     "mongodb": "^6.8.0",
-    "mongoose": "^8.5.4",
+    "mongoose": "^8.6.0",
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18",
     "react-icon": "^1.0.0",
-    "svix": "^1.30.0"
+    "sharp": "^0.33.5",
+    "svix": "^1.30.0",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
