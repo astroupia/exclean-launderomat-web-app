@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+
+interface SelectItem {
+  value: string;
+  label: string;
+}
 
 interface SelectProps {
-  items: { value: string; label: string }[];
+  items: SelectItem[];
   placeholder?: string;
   onChange: (value: string) => void;
 }
 
-// Example items array
-const exampleItems = [
-  { value: "1", label: "Option 1" },
-  { value: "2", label: "Option 2" },
-  { value: "3", label: "Option 3" },
-];
-
+/**
+ * Select component for dropdown selection
+ * @param {SelectProps} props - The props for the select component
+ * @returns {JSX.Element} A custom select dropdown
+ */
 export function Select({
   items,
   placeholder = "Select an option",
@@ -97,6 +100,12 @@ export default function ExamplePage() {
   const handleSelectChange = (value: string) => {
     console.log("Selected value:", value);
   };
+
+  const exampleItems: SelectItem[] = [
+    { value: "1", label: "Option 1" },
+    { value: "2", label: "Option 2" },
+    { value: "3", label: "Option 3" },
+  ];
 
   return <Select items={exampleItems} onChange={handleSelectChange} />;
 }

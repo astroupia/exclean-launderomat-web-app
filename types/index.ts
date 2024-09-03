@@ -1,28 +1,14 @@
 export type CreateUserParams = {
-  clerkId: String;
-  email: String;
-  role?: String;
-  firstName: String;
-  lastName: String;
+  clerkId: string;
+  email: string;
+  role?: string;
+  firstName: string;
+  lastName: string;
 };
 
 export type UpdateUserParams = {
-  firstName: String;
-  lastName: String;
-};
-
-export type OrderParam = {
-  id: number;
-  customer: string;
-  date: string;
-  time: string;
-  frequency: string;
-  status: string;
-  payment: {
-    method: string;
-    amount: number;
-    status: string;
-  };
+  firstName: string;
+  lastName: string;
 };
 
 export type InventoryItemParam = {
@@ -40,16 +26,29 @@ export type PaymentParam = {
 };
 
 export type ItemParams = {
-  type: String;
-  fabric: String;
+  type: string;
+  fabric: string;
   quantity: number;
 };
 
-export type CreateOrderParams = {
-  id: String;
+export interface Order {
+  id: string;
   orderDateTime: Date;
-  status: String;
+  status: string;
+  type: string;
+  cleaningType: string;
   price: number;
-  owner: CreateUserParams;
-  items: ItemParams[];
+  owner: string; // Assuming owner is a string representing the user ID
+}
+
+export type CreateOrderParams = {
+  userId: string;
+  order: Order;
 };
+
+export interface Product {
+  id: string;
+  name: string;
+  quantity: string;
+  unitPrice: string;
+}

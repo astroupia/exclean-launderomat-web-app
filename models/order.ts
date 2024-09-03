@@ -1,46 +1,17 @@
-import { Schema, models, model } from "mongoose";
-
-const ItemSchema = new Schema({
-  type: {
-    type: String,
-    required: true,
-    enum: [
-      "Shirt",
-      "Blouse",
-      "Jeans",
-      "Suit",
-      "Dress",
-      "Shoes",
-      "Trouser",
-      "Sweater",
-    ],
-  },
-  fabric: {
-    type: String,
-    required: true,
-    enum: ["Cotton", "Silk", "Wool", "Polyester", "Denim"],
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    min: 1,
-  },
-});
+import mongoose, { Schema, model, models } from "mongoose";
 
 const OrderSchema = new Schema({
-  id: { type: String, required: true, unique: true },
-  orderDateTime: { type: Date, required: true, default: Date.now },
-  status: {
-    type: String,
-    required: true,
-    enum: ["Pending", "On Process", "Finished"],
-    default: "Pending",
-  },
+  id: { type: String, required: true },
+  orderDateTime: { type: Date, required: true },
+  status: { type: String, required: true },
+  type: { type: String, required: true },
+  cleaningType: { type: String, required: true },
   price: { type: Number, required: true },
-  owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  items: { type: [ItemSchema], required: true },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
+console.log("Defining Order model...");
 const Order = models.Order || model("Order", OrderSchema);
+console.log("Order model:", Order);
 
 export default Order;

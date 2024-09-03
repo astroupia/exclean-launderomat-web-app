@@ -1,108 +1,178 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { CreateOrderParams } from "@/types";
+import { useAuth } from "@clerk/nextjs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { OrderParam } from "@/types"; // Importing the types for orders
 import { Label } from "@/components/ui/Label";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
-import React, { useState } from "react";
+import { Badge } from "@/components/ui/Badge";
 
-function CustomerOrderForm({
+interface CustomerOrderFormProps {
+  handleOrderRequest: (order: CreateOrderParams) => void;
+}
+
+const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
   handleOrderRequest,
-}: {
-  handleOrderRequest: (order: OrderParam) => void;
-}) {
-  // State to handle form input values
-  const [date, setDate] = useState<string>("");
-  const [time, setTime] = useState<string>("");
-  const [frequency, setFrequency] = useState<string>("Weekly");
-  const [notes, setNotes] = useState<string>("");
+}) => {
+  const [orderType, setOrderType] = useState<string>("");
+  const [cleaningType, setCleaningType] = useState<string>("");
+  const [price, setPrice] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { userId } = useAuth();
+
+  const calculatePrice = (type: string, cleaningType: string) => {
+    let basePrice = 0;
+    switch (type) {
+      case "Shirt":
+        basePrice = 10;
+        break;
+      case "Jeans":
+        basePrice = 20;
+        break;
+      case "Blouse":
+        basePrice = 15;
+        break;
+      case "Suit":
+        basePrice = 30;
+        break;
+      case "Dress":
+        basePrice = 25;
+        break;
+      case "Shoes":
+        basePrice = 12;
+        break;
+      case "Trouser":
+        basePrice = 18;
+        break;
+      case "Sweater":
+        basePrice = 22;
+        break;
+      default:
+        basePrice = 0;
+        break;
+    }
+
+    let cleaningPrice = cleaningType === "Dry" ? 5 : 10;
+
+    return basePrice + cleaningPrice;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Basic validation
+    if (!orderType || !cleaningType || price <= 0) {
+      alert("Please complete all fields correctly.");
+      setIsSubmitting(false);
+      return;
+    }
+    const order: CreateOrderParams = {
+      userId: userId || "",
+      order: {
+        id: new Date().toISOString(),
+        orderDateTime: new Date(),
+        status: "Pending",
+        type: orderType,
+        cleaningType,
+        price: calculatePrice(orderType, cleaningType),
+        owner: userId || "",
+      },
+    };
+
+    try {
+      await handleOrderRequest(order);
+      alert("Order created successfully!");
+      // Reset form
+      setOrderType("");
+      setCleaningType("");
+    } catch (error) {
+      console.error("Failed to handle order request:", error);
+      alert("Failed to process order. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    // Recalculate price whenever orderType or cleaningType changes
+    setPrice(calculatePrice(orderType, cleaningType));
+  }, [orderType, cleaningType]);
 
   return (
-    <Card className="bg-black">
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Order Cleaning Service</CardTitle>
+        <CardTitle className="text-2xl font-bold">Place an Order</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Form submission logic */}
-        <form
-          onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-
-            // Constructing the order object based on form inputs
-            const order: OrderParam = {
-              id: Date.now(), // Use a better ID generation method in production
-              customer: "John Doe", // Replace with dynamic customer data in real scenarios
-              date,
-              time,
-              frequency,
-              status: "Pending",
-              payment: {
-                method: "Credit Card", // You can replace this with a dynamic input if needed
-                amount: 50, // Replace with dynamic input or calculated value
-                status: "Pending",
-              },
-            };
-
-            handleOrderRequest(order);
-          }}
-        >
-          <div className="grid gap-4">
-            {/* Form Fields */}
-
-            {/* Date Input */}
-            <Label htmlFor="date">Date</Label>
-            <Input
-              type="date"
-              id="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="orderType" className="text-sm font-medium">
+              Order Type
+            </Label>
+            <Select
+              items={[
+                { value: "Shirt", label: "Shirt" },
+                { value: "Blouse", label: "Blouse" },
+                { value: "Jeans", label: "Jeans" },
+                { value: "Suit", label: "Suit" },
+                { value: "Dress", label: "Dress" },
+                { value: "Shoes", label: "Shoes" },
+                { value: "Trouser", label: "Trouser" },
+                { value: "Sweater", label: "Sweater" },
+              ]}
+              onChange={(value) => setOrderType(value as string)}
+              placeholder="Select order type"
             />
-
-            {/* Time Input */}
-            <Label htmlFor="time">Time</Label>
-            <Input
-              type="time"
-              id="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-            />
-
-            {/* Frequency Select */}
-            <Label htmlFor="frequency">Frequency</Label>
-            <select
-              id="frequency"
-              value={frequency}
-              onChange={(e) => setFrequency(e.target.value)}
-              required
-              className="p-2 border rounded"
+          </div>
+          <div className="space-y-2">
+            <Label
+              htmlFor="cleaningType"
+              className="text-indigo-600 text-sm font-medium"
             >
-              <option value="Weekly">Weekly</option>
-              <option value="Bi-weekly">Bi-weekly</option>
-              <option value="Monthly">Monthly</option>
-            </select>
-
-            {/* Notes TextArea */}
-            <Label htmlFor="notes">Additional Notes</Label>
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="p-2 border rounded"
-              rows={4}
+              Cleaning Type
+            </Label>
+            <Select
+              items={[
+                { value: "Dry", label: "Dry" },
+                { value: "Wet", label: "Wet" },
+              ]}
+              onChange={(value) => setCleaningType(value)}
+              placeholder="Select cleaning type"
             />
-
-            {/* Submit Button */}
-            <Button
-              content="Request Cleaning"
-              type="submit"
-              className="w-full"
-            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="price" className="text-sm font-medium">
+              Estimated Price
+            </Label>
+            <div className="flex items-center space-x-2">
+              <Input
+                type="text"
+                id="price"
+                value={`$${price.toFixed(2)}`}
+                readOnly
+                className="w-full bg-gray-100"
+              />
+              <Badge variant="info">Estimate</Badge>
+            </div>
           </div>
         </form>
       </CardContent>
+      <div className="p-6 pt-0">
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting || !orderType || !cleaningType}
+          onClick={handleSubmit}
+        >
+          {isSubmitting ? "Processing..." : "Submit Order"}
+        </Button>
+      </div>
     </Card>
   );
-}
+};
 
 export default CustomerOrderForm;

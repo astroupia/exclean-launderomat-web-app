@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./view.css";
-import AdminOrders from "@/components/shared/AdminOrders";
-import AdminInventory from "@/components/shared/AdminInventory";
-import AdminPayments from "@/components/shared/AdminPayments";
-import CustomerOrderForm from "@/components/shared/CustomerOrderForm";
 import SideButton, { SideButtonProps } from "@/components/shared/SideButton";
 import Order from "@/public/assets/icons/order.png";
 import Payment from "@/public/assets/icons/payment.png";
-import { OrderParam } from "@/types"; // Importing the types for orders
+import { CreateOrderParams, Order as OrderType } from "@/types";
+import { getUserRole } from "@/lib/actions/user.action"; // Import the function to fetch user role
+import { useAuth, useUser } from "@clerk/nextjs";
+import { createOrder } from "@/lib/actions/order.action";
+import CustomerOrderForm from "@/components/shared/CustomerOrderForm";
 
 // Array of side button data for customers
 const customerButtons: SideButtonProps[] = [
@@ -51,31 +51,64 @@ export const toggles: toggleData[] = [
 ];
 
 const Dashboard: React.FC = () => {
-  // State to determine if the view is for a customer or admin
+  const { isLoaded, userId } = useAuth();
+  const { user } = useUser();
+
   const [view, setView] = useState<"customer" | "admin">("customer");
-
-  // State to manage the selected button and rendered content
   const [selectedBar, setSelectedBar] = useState<string>("Order");
+  const [orders, setOrders] = useState<CreateOrderParams[]>([]);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
-  // State to manage orders
-  const [orders, setOrders] = useState<OrderParam[]>([
-    {
-      id: 1,
-      customer: "Nahom",
-      date: "20 / 19 / 90",
-      time: "2:30",
-      status: "Ongoing",
-      frequency: "Lots",
-      payment: {
-        method: "card",
-        amount: 200.0,
-        status: "Approved",
+  useEffect(() => {
+    async function fetchUserRole() {
+      if (isLoaded && userId) {
+        try {
+          const role = await getUserRole(userId);
+          setUserRole(role);
+          setView(role === "admin" ? "admin" : "customer");
+        } catch (error) {
+          console.error("Failed to fetch user role:", error);
+        }
+      }
+    }
+    fetchUserRole();
+  }, [isLoaded, userId]);
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  const handleOrderRequest = async (order: CreateOrderParams) => {
+    try {
+      const createdOrder = await createOrder(order);
+      setOrders((prevOrders) => [...prevOrders, createdOrder]);
+      console.log("Order created successfully:", createdOrder);
+    } catch (error: unknown) {
+      console.error("Failed to create order:", error);
+      if (error instanceof Error) {
+        alert(`Failed to create order: ${error.message}`);
+      } else {
+        alert("Failed to create order: An unknown error occurred");
+      }
+    }
+  };
+
+  const handleFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+    const order: CreateOrderParams = {
+      userId: userId || "",
+      order: {
+        id: new Date().toISOString(),
+        orderDateTime: new Date(),
+        status: "Pending",
+        type: formData.get("type") as string,
+        owner: userId || "",
+        cleaningType: formData.get("cleaningType") as string,
+        price: Number(formData.get("price")),
       },
-    },
-  ]);
-
-  const handleOrderRequest = (order: OrderParam) => {
-    setOrders([...orders, order]);
+    };
+    handleOrderRequest(order);
   };
 
   const handleToggleClick = (name: string) => {
@@ -85,9 +118,9 @@ const Dashboard: React.FC = () => {
   return (
     <>
       <h1 className="word text-indigo-600 font-bold text-2xl">
-        Name, Dashboard
+        {user?.firstName || "User"}'s Dashboard
       </h1>
-      <section className={`section`}>
+      <section className={`bg-black section`}>
         <div className="flex">
           <div className="button">
             {(view === "customer" ? customerButtons : adminButtons).map(
@@ -104,19 +137,19 @@ const Dashboard: React.FC = () => {
               )
             )}
           </div>
-          <div className="dashboard mx-8 p-4 borde">
-            {/* Conditionally render components based on selectedBar */}
+          <div className="dashboard mx-8 p-4 border">
             {selectedBar === "Order" && view === "customer" && (
-              <CustomerOrderForm handleOrderRequest={handleOrderRequest} />
+              <CustomerOrderForm
+                handleOrderRequest={(order: CreateOrderParams) =>
+                  handleOrderRequest(order)
+                }
+              />
             )}
             {selectedBar === "Payment" && view === "customer" && (
-              <h1 className="text-indigo-600">customer Payment</h1>
+              <h1 className="text-indigo-600">Customer Payment</h1>
             )}
             {selectedBar === "Order" && view === "admin" && (
-              <h1 className="text-indigo-600">admin order</h1>
-            )}
-            {selectedBar === "Payment" && view === "admin" && (
-              <h2 className="text-indigo-600"> admin payment </h2>
+              <h1 className="text-indigo-600">Admin Order Management</h1>
             )}
           </div>
         </div>
@@ -126,95 +159,3 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
-
-{
-  /* {view === "customer" &&  
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-            
-            <CustomerOrderForm handleOrderRequest={handleOrderRequest} />
-            <CustomerPaymentForm handlePaymentUpload={handlePaymentUpload} />
-            <CustomerOrderStatus orders={orders} />
-          </div>
-        )}
-
-        {view === "admin" && (
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-            
-            <div className="m-5 w-1/2">
-              <AdminOrders orders={orders} />
-            </div>
-            <div className="m-5">
-              <AdminInventory
-                inventory={inventory}
-                handleInventoryUpdate={handleInventoryUpdate}
-              />{" "}
-            </div>
-            <div className="m-5">
-              <AdminPayments
-                payments={payments}
-                handlePaymentApproval={handlePaymentApproval}
-              />
-            </div>
-          </div>
-        )} */
-}
-
-// function CustomerOrderStatus({ orders }: { orders: OrderParam[] }) {
-//   return (
-//     <Card>
-//       <CardHeader>
-//         <CardTitle>Check Order Status</CardTitle>
-//       </CardHeader>
-//       <CardContent>
-//         <Table>
-//           <TableHeader>
-//             <TableRow>
-//               <TableHead>Order ID</TableHead>
-//               <TableHead>Date</TableHead>
-//               <TableHead>Time</TableHead>
-//               <TableHead>Frequency</TableHead>
-//               <TableHead>Status</TableHead>
-//               <TableHead>Payment</TableHead>
-//             </TableRow>
-//           </TableHeader>
-//           <TableBody>
-//             {orders.map((order) => (
-//               <TableRow key={order.id}>
-//                 <TableCell>{order.id}</TableCell>
-//                 <TableCell>{order.date}</TableCell>
-//                 <TableCell>{order.time}</TableCell>
-//                 <TableCell>{order.frequency}</TableCell>
-//                 <TableCell>
-//                   <Badge
-//                     variant={
-//                       order.status === "Pending"
-//                         ? "warning"
-//                         : order.status === "Scheduled"
-//                         ? "info"
-//                         : "success"
-//                     }
-//                   >
-//                     {order.status}
-//                   </Badge>
-//                 </TableCell>
-//                 <TableCell>
-//                   <Badge
-//                     variant={
-//                       order.payment.status === "Pending"
-//                         ? "warning"
-//                         : order.payment.status === "Approved"
-//                         ? "info"
-//                         : "success"
-//                     }
-//                   >
-//                     {order.payment.status}
-//                   </Badge>
-//                 </TableCell>
-//               </TableRow>
-//             ))}
-//           </TableBody>
-//         </Table>
-//       </CardContent>
-//     </Card>
-//   );
-// }

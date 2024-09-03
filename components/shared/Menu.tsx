@@ -13,16 +13,23 @@ const transition = {
   restSpeed: 0.001,
 };
 
-export const MenuItems = ({
-  setActive,
-  active,
-  item,
-  children,
-}: {
+interface MenuItemsProps {
   setActive: (item: string) => void;
   active: string | null;
   item: string;
   children?: React.ReactNode;
+}
+
+/**
+ * MenuItems component for individual menu items
+ * @param {MenuItemsProps} props - The props for the menu items
+ * @returns {JSX.Element} A menu item with potential dropdown
+ */
+export const MenuItems: React.FC<MenuItemsProps> = ({
+  setActive,
+  active,
+  item,
+  children,
 }) => {
   return (
     <div onMouseEnter={() => setActive(item)} className="relative ">
@@ -60,13 +67,17 @@ export const MenuItems = ({
   );
 };
 
-export const Menu = ({
-  setActive,
-  children,
-}: {
+interface MenuProps {
   setActive: (item: string | null) => void;
   children: React.ReactNode;
-}) => {
+}
+
+/**
+ * Menu component for navigation
+ * @param {MenuProps} props - The props for the menu
+ * @returns {JSX.Element} A navigation menu
+ */
+export const Menu: React.FC<MenuProps> = ({ setActive, children }) => {
   return (
     <nav
       onMouseLeave={() => setActive(null)} // resets the state
@@ -78,16 +89,23 @@ export const Menu = ({
   );
 };
 
-export const ProductItem = ({
-  title,
-  description,
-  href,
-  src,
-}: {
+interface ProductItemProps {
   title: string;
   description: string;
   href: string;
   src: string;
+}
+
+/**
+ * ProductItem component for displaying product information
+ * @param {ProductItemProps} props - The props for the product item
+ * @returns {JSX.Element} A product item display
+ */
+export const ProductItem: React.FC<ProductItemProps> = ({
+  title,
+  description,
+  href,
+  src,
 }) => {
   return (
     <Link href={href} className="flex space-x-2">
@@ -110,7 +128,21 @@ export const ProductItem = ({
   );
 };
 
-export const HoveredLink = ({ children, ...rest }: any) => {
+interface HoveredLinkProps {
+  children: React.ReactNode;
+  href: string;
+  [key: string]: any;
+}
+
+/**
+ * HoveredLink component for styled links
+ * @param {HoveredLinkProps} props - The props for the hovered link
+ * @returns {JSX.Element} A styled link
+ */
+export const HoveredLink: React.FC<HoveredLinkProps> = ({
+  children,
+  ...rest
+}) => {
   return (
     <Link
       {...rest}
