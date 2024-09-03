@@ -2,7 +2,7 @@
 
 import { connectToDatabase } from "@/utils/database";
 import { CreateUserParams, UpdateUserParams } from "@/types";
-import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
 export async function createUser(user: CreateUserParams) {
   try {
@@ -41,7 +41,9 @@ export async function getUserById(userId: string) {
   try {
     const { db } = await connectToDatabase();
     const usersCollection = db.collection("users");
-    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    const user = await usersCollection.findOne({
+      _id: new mongoose.Types.ObjectId(userId),
+    });
     if (!user) throw new Error("User not found");
     return JSON.parse(JSON.stringify(user));
   } catch (error) {
@@ -52,18 +54,23 @@ export async function getUserById(userId: string) {
 
 export async function getUserRole(userId: string): Promise<string> {
   try {
-    console.log("getUserRole called with userId:", userId);
-    const { db } = await connectToDatabase();
-    console.log("Database connection successful, fetching user role");
-    const user = await db.collection("users").findOne({ clerkId: userId });
+    await connectToDatabase();
+    const User = mongoose.model(
+      "User",
+      new mongoose.Schema({
+        clerkId: String,
+        role: String,
+        // Add other fields as needed
+      })
+    );
+    const user = await User.findOne({ clerkId: userId });
 
     if (!user) {
       console.log("User not found");
       return "customer"; // Default role if user not found
     }
 
-    console.log("User role:", user.role);
-    return user.role;
+    return user.role || "customer"; // Return "customer" if role is null or undefined
   } catch (error) {
     console.error("Error in getUserRole:", error);
     throw new Error("Failed to fetch user role");

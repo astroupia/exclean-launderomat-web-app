@@ -1,6 +1,5 @@
 import { connectToDatabase } from "@/utils/database";
 import { CreateOrderParams, Order as OrderType } from "@/types";
-import { ObjectId } from "mongodb";
 
 export async function createOrder(params: CreateOrderParams) {
   try {
