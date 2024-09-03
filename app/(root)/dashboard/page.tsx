@@ -1,7 +1,7 @@
 import Dashboard from "@/views/Dashboard";
 import React from "react";
 
-const page = () => {
+const Page = () => {
   return (
     <div>
       <Dashboard />
@@ -9,4 +9,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
