@@ -8,13 +8,13 @@ import {
   TableCell,
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
-import { OrderParam } from "@/types"; // Importing the types for orders
+import { CreateOrderParams } from "@/types"; // Importing the types for orders
 
 // AdminOrders component is a functional React component that takes in an array of orders as a prop
-const AdminOrders: React.FC<{ orders: OrderParam[] }> = ({ orders }) => {
+const AdminOrders: React.FC<{ orders: CreateOrderParams[] }> = ({ orders }) => {
   return (
     // The main Card component wraps the entire content of the orders table
-    <Card>
+    <Card className="w-full">
       {/* CardHeader contains the title of the card */}
       <CardHeader>
         <CardTitle>Orders</CardTitle>
@@ -38,40 +38,30 @@ const AdminOrders: React.FC<{ orders: OrderParam[] }> = ({ orders }) => {
           <TableBody>
             {/* Mapping over orders to generate a table row for each order */}
             {orders.map((order) => (
-              <TableRow key={order.id}>
+              <TableRow key={order.order.id}>
                 {/* TableCell defines each cell in a row */}
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{order.customer}</TableCell>
-                <TableCell>{order.date}</TableCell>
-                <TableCell>{order.time}</TableCell>
-                <TableCell>{order.frequency}</TableCell>
+                <TableCell>{order.order.id}</TableCell>
+                <TableCell>{order.userId}</TableCell>
+                <TableCell>
+                  {new Date(order.order.orderDateTime).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  {new Date(order.order.orderDateTime).toLocaleTimeString()}
+                </TableCell>
+                <TableCell>{order.order.type}</TableCell>
                 <TableCell>
                   {/* Badge component displays the status with different variants */}
                   <Badge
                     variant={
-                      order.status === "Pending"
-                        ? "warning"
-                        : order.status === "Scheduled"
-                        ? "info"
-                        : "success"
+                      order.order.status === "Pending" ? "warning" : "success"
                     }
                   >
-                    {order.status}
+                    {order.order.status}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   {/* Badge component displays the payment status with different variants */}
-                  <Badge
-                    variant={
-                      order.payment.status === "Pending"
-                        ? "warning"
-                        : order.payment.status === "Approved"
-                        ? "info"
-                        : "success"
-                    }
-                  >
-                    {order.payment.status}
-                  </Badge>
+                  <Badge variant="info">{order.order.price}</Badge>
                 </TableCell>
               </TableRow>
             ))}

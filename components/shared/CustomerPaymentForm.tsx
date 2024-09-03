@@ -1,60 +1,53 @@
-import Button from "@/components/ui/Button"; // Importing the Button component for approval actions
-import { PaymentParam } from "@/types"; // Importing the type definition for payments
+import React, { useState } from "react";
+import { PaymentParam } from "@/types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import { Input } from "@/components/ui/Input";
-import React, { useState } from "react";
+import { Select } from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
 
-function CustomerPaymentForm({
-  handlePaymentUpload,
-}: {
+interface CustomerPaymentFormProps {
   handlePaymentUpload: (payment: PaymentParam) => void;
-}) {
-  // State to handle form input values
+}
+
+const CustomerPaymentForm: React.FC<CustomerPaymentFormProps> = ({
+  handlePaymentUpload,
+}) => {
   const [method, setMethod] = useState<string>("Credit Card");
   const [amount, setAmount] = useState<number>(0);
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const payment: PaymentParam = {
+      id: Date.now(),
+      customer: "John Doe", // Replace with dynamic customer data in real scenarios
+      amount,
+      method,
+      status: "Pending",
+    };
+    handlePaymentUpload(payment);
+  };
+
   return (
-    <Card>
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle>Upload Payment</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Form submission logic */}
-        <form
-          onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-            e.preventDefault();
-
-            // Constructing the payment object based on form inputs
-            const payment: PaymentParam = {
-              id: Date.now(), // Use a better ID generation method in production
-              customer: "John Doe", // Replace with dynamic customer data in real scenarios
-              amount,
-              method,
-              status: "Pending",
-            };
-
-            handlePaymentUpload(payment);
-          }}
-        >
-          <div className="grid gap-4">
-            {/* Form Fields */}
-
-            {/* Payment Method Select */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
             <Label htmlFor="payment-method">Payment Method</Label>
-            <select
-              id="payment-method"
-              value={method}
-              onChange={(e) => setMethod(e.target.value)}
-              required
-              className="p-2 border rounded"
-            >
-              <option value="Credit Card">Credit Card</option>
-              <option value="PayPal">PayPal</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-            </select>
-
-            {/* Payment Amount Input */}
+            <Select
+              items={[
+                { value: "Credit Card", label: "Credit Card" },
+                { value: "PayPal", label: "PayPal" },
+                { value: "Bank Transfer", label: "Bank Transfer" },
+              ]}
+              onChange={(value) => setMethod(value)}
+              placeholder="Select payment method"
+            />
+          </div>
+          <div>
             <Label htmlFor="payment-amount">Amount</Label>
             <Input
               type="number"
@@ -63,14 +56,14 @@ function CustomerPaymentForm({
               onChange={(e) => setAmount(Number(e.target.value))}
               required
             />
-
-            {/* Submit Button */}
-            <Button content="Upload Payment" type="submit" className="w-full" />
           </div>
+          <Button type="submit" className="w-full">
+            Upload Payment
+          </Button>
         </form>
       </CardContent>
     </Card>
   );
-}
+};
 
 export default CustomerPaymentForm;
