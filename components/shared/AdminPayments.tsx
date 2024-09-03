@@ -10,7 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge"; // Importing the Badge component for status indicators
-import { Button } from "@/components/ui/Button"; // Importing the Button component for approval actions
+import Button from "@/components/ui/Button"; // Importing the Button component for approval actions
 import { PaymentParam } from "@/types"; // Importing the type definition for payments
 import { useState } from "react";
 
