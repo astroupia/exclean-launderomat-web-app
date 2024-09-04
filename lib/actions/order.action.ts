@@ -136,7 +136,7 @@ export async function testOrderFunctions() {
         id: "test_order_" + Date.now(),
         orderDateTime: new Date(),
         status: "Pending",
-        type: "Shirt",
+        type: ["Shirt"],
         cleaningType: "Dry",
         price: 15,
       },
