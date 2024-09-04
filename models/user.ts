@@ -10,10 +10,10 @@ const UserSchema = new Schema({
   lastName: { type: String, required: true },
 });
 
-console.log("User schema defined:", UserSchema);
+// console.log("User schema defined:", UserSchema);
 
 const User = models.User || model("User", UserSchema);
 
-console.log("User model:", User);
+// console.log("User model:", User);
 
 export default User;

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import {
   Table,
@@ -7,26 +8,52 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/Table";
-import { useState, useEffect } from "react";
-import { getAllProducts } from "@/lib/actions/product.action"; // Import the function to fetch products
-import { Product } from "@/types"; // Import the Product type
+import Button from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Product } from "@/types";
+import {
+  getAllProducts,
+  updateProductById,
+} from "@/lib/actions/product.action";
 
 // AdminInventory component for managing the inventory
 function AdminInventory() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editQuantity, setEditQuantity] = useState<string>("");
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const fetchedProducts = await getAllProducts();
-        setProducts(fetchedProducts);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-      }
-    };
-
     fetchProducts();
   }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const fetchedProducts = await getAllProducts();
+      setProducts(fetchedProducts);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+    }
+  };
+
+  const handleEdit = (product: Product) => {
+    setEditingId(product.id);
+    setEditQuantity(product.quantity);
+  };
+
+  const handleSave = async (product: Product) => {
+    try {
+      await updateProductById(product.id, { quantity: editQuantity });
+      setEditingId(null);
+      fetchProducts(); // Refresh the product list
+    } catch (error) {
+      console.error("Failed to update product:", error);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditQuantity("");
+  };
 
   return (
     <Card className="w-full">
@@ -43,6 +70,7 @@ function AdminInventory() {
               <TableHead>Product Name</TableHead>
               <TableHead>Quantity</TableHead>
               <TableHead>Unit Price</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -51,8 +79,28 @@ function AdminInventory() {
               <TableRow key={product.id}>
                 <TableCell>{product.id}</TableCell>
                 <TableCell>{product.name}</TableCell>
-                <TableCell>{product.quantity}</TableCell>
+                <TableCell>
+                  {editingId === product.id ? (
+                    <Input
+                      type="number"
+                      value={editQuantity}
+                      onChange={(e) => setEditQuantity(e.target.value)}
+                    />
+                  ) : (
+                    product.quantity
+                  )}
+                </TableCell>
                 <TableCell>${product.unitPrice}</TableCell>
+                <TableCell>
+                  {editingId === product.id ? (
+                    <>
+                      <Button onClick={() => handleSave(product)}>Save</Button>
+                      <Button onClick={handleCancel}>Cancel</Button>
+                    </>
+                  ) : (
+                    <Button onClick={() => handleEdit(product)}>Edit</Button>
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

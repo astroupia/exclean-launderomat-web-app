@@ -115,6 +115,18 @@ export async function getUserOrders({ userId }: GetUserOrdersParams) {
   }
 }
 
+export async function getAllOrders() {
+  try {
+    await connectToDatabase();
+
+    const orders = await Order.find().populate("owner");
+    return JSON.parse(JSON.stringify(orders));
+  } catch (error) {
+    console.error("Error getting all orders:", error);
+    throw new Error("Failed to get all orders");
+  }
+}
+
 // Test function
 export async function testOrderFunctions() {
   try {

@@ -18,11 +18,13 @@ export type InventoryItemParam = {
 };
 
 export type PaymentParam = {
-  id: number;
+  id: string; // Change this to string if it's not already
+  orderId: string;
   customer: string;
   amount: number;
   method: string;
-  status: string;
+  status: "Pending" | "Approved" | "Rejected";
+  bankStatementUrl: string;
 };
 
 export type ItemParams = {
