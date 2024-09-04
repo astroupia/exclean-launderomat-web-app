@@ -1,17 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "baseUrl": ".",
+    "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
-    // "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
+    "module": "esnext",
+    "moduleResolution": "node", // Use Node.js resolution to prevent bundler issues
+    "resolveJsonModule": true, // Allow importing JSON files as modules
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
@@ -24,12 +23,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "app/(root)/dashboard"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
