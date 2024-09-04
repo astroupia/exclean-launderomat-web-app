@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { ChevronDown, X } from "lucide-react";
 
 interface SelectItem {
   value: string;
@@ -26,32 +27,38 @@ export function Select({
   const [selectedItem, setSelectedItem] = useState<string | undefined>(
     undefined
   );
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleSelect = (value: string) => {
     setSelectedItem(value);
     onChange(value);
+    setIsOpen(false); // Close the dropdown after selection
   };
 
   return (
     <div className="relative">
       <SelectTrigger>
-        <SelectValue>
-          {selectedItem
-            ? items.find((item) => item.value === selectedItem)?.label
-            : placeholder}
-        </SelectValue>
+        <div onClick={() => setIsOpen(!isOpen)}>
+          <SelectValue>
+            {selectedItem
+              ? items.find((item) => item.value === selectedItem)?.label
+              : placeholder}
+          </SelectValue>
+        </div>
       </SelectTrigger>
-      <SelectContent>
-        {items.map((item) => (
-          <SelectItem
-            key={item.value}
-            value={item.value}
-            onClick={() => handleSelect(item.value)}
-          >
-            {item.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
+      {isOpen && (
+        <SelectContent>
+          {items.map((item) => (
+            <SelectItem
+              key={item.value}
+              value={item.value}
+              onClick={() => handleSelect(item.value)}
+            >
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      )}
     </div>
   );
 }
@@ -109,3 +116,94 @@ export default function ExamplePage() {
 
   return <Select items={exampleItems} onChange={handleSelectChange} />;
 }
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface MultiSelectProps {
+  options: Option[];
+  value: string[];
+  onChange: (value: string[]) => void;
+  placeholder?: string;
+}
+
+export const MultiSelect: React.FC<MultiSelectProps> = ({
+  options,
+  value,
+  onChange,
+  placeholder = "Select options",
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const toggleOption = (optionValue: string) => {
+    const newValue = value.includes(optionValue)
+      ? value.filter((v) => v !== optionValue)
+      : [...value, optionValue];
+    onChange(newValue);
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <div
+        className="flex items-center justify-between p-2 border rounded-md cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex flex-wrap gap-1">
+          {value.length > 0 ? (
+            value.map((v) => (
+              <span
+                key={v}
+                className="bg-gray-200 px-2 py-1 rounded-md text-sm"
+              >
+                {options.find((opt) => opt.value === v)?.label}
+                <button
+                  className="ml-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleOption(v);
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              </span>
+            ))
+          ) : (
+            <span className="text-gray-400">{placeholder}</span>
+          )}
+        </div>
+        <ChevronDown size={20} />
+      </div>
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
+          {options.map((option) => (
+            <div
+              key={option.value}
+              className={`p-2 cursor-pointer hover:bg-gray-100 ${
+                value.includes(option.value) ? "bg-gray-200" : ""
+              }`}
+              onClick={() => toggleOption(option.value)}
+            >
+              {option.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};

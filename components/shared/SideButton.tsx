@@ -20,7 +20,7 @@ const SideButton: React.FC<SideButtonProps> = ({
     <div className="cursorflex item-center justify-center px-5 max-w-9 my-5">
       <button className={`flex ${className}`} onClick={onClick}>
         <Image className="mx-2" width={30} height={30} src={iconUrl} alt=" " />
-        <h3 className="hover:text-black font-bold text-indigo-600 mx-2">
+        <h3 className="hover:text-white font-bold text-indigo-600 mx-2">
           {name}
         </h3>
       </button>

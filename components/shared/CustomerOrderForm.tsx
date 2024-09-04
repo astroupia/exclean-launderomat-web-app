@@ -6,88 +6,71 @@ import { useAuth } from "@clerk/nextjs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
+import { Select, MultiSelect, SelectItem } from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 
 interface CustomerOrderFormProps {
-  handleOrderRequest: (order: CreateOrderParams) => void;
+  handleOrderRequest: (order: CreateOrderParams) => Promise<void>;
 }
 
 const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
   handleOrderRequest,
 }) => {
-  const [orderType, setOrderType] = useState<string>("");
+  const [orderTypes, setOrderTypes] = useState<string[]>([]);
   const [cleaningType, setCleaningType] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { userId } = useAuth();
 
-  const calculatePrice = (type: string, cleaningType: string) => {
-    let basePrice = 0;
-    switch (type) {
-      case "Shirt":
-        basePrice = 10;
-        break;
-      case "Jeans":
-        basePrice = 20;
-        break;
-      case "Blouse":
-        basePrice = 15;
-        break;
-      case "Suit":
-        basePrice = 30;
-        break;
-      case "Dress":
-        basePrice = 25;
-        break;
-      case "Shoes":
-        basePrice = 12;
-        break;
-      case "Trouser":
-        basePrice = 18;
-        break;
-      case "Sweater":
-        basePrice = 22;
-        break;
-      default:
-        basePrice = 0;
-        break;
-    }
+  const calculatePrice = (types: string[], cleaningType: string) => {
+    const basePrices: { [key: string]: number } = {
+      Shirt: 10,
+      Jeans: 20,
+      Blouse: 15,
+      Suit: 30,
+      Dress: 25,
+      Shoes: 12,
+      Trouser: 18,
+      Sweater: 22,
+    };
 
-    let cleaningPrice = cleaningType === "Dry" ? 5 : 10;
+    const totalBasePrice = types.reduce(
+      (sum, type) => sum + (basePrices[type] || 0),
+      0
+    );
+    const cleaningPrice = cleaningType === "Dry" ? 5 : 10;
 
-    return basePrice + cleaningPrice;
+    return totalBasePrice + cleaningPrice;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Basic validation
-    if (!orderType || !cleaningType || price <= 0) {
+    if (orderTypes.length === 0 || !cleaningType || price <= 0) {
       alert("Please complete all fields correctly.");
       setIsSubmitting(false);
       return;
     }
+
     const order: CreateOrderParams = {
       userId: userId || "",
       order: {
         id: new Date().toISOString(),
         orderDateTime: new Date(),
         status: "Pending",
-        type: orderType,
-        cleaningType,
-        price: calculatePrice(orderType, cleaningType),
-        owner: userId || "",
+        type: orderTypes, // Keep this as an array
+        cleaningType: cleaningType as "Dry" | "Wet" | "Steam" | "Other",
+        price: calculatePrice(orderTypes, cleaningType),
       },
     };
 
     try {
       await handleOrderRequest(order);
       alert("Order created successfully!");
-      // Reset form
-      setOrderType("");
+      // Reset form only on success
+      setOrderTypes([]);
       setCleaningType("");
     } catch (error) {
       console.error("Failed to handle order request:", error);
@@ -98,9 +81,8 @@ const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
   };
 
   useEffect(() => {
-    // Recalculate price whenever orderType or cleaningType changes
-    setPrice(calculatePrice(orderType, cleaningType));
-  }, [orderType, cleaningType]);
+    setPrice(calculatePrice(orderTypes, cleaningType));
+  }, [orderTypes, cleaningType]);
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -110,11 +92,11 @@ const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="orderType" className="text-sm font-medium">
-              Order Type
+            <Label htmlFor="orderTypes" className="text-sm font-medium">
+              Order Types
             </Label>
-            <Select
-              items={[
+            <MultiSelect
+              options={[
                 { value: "Shirt", label: "Shirt" },
                 { value: "Blouse", label: "Blouse" },
                 { value: "Jeans", label: "Jeans" },
@@ -124,8 +106,9 @@ const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
                 { value: "Trouser", label: "Trouser" },
                 { value: "Sweater", label: "Sweater" },
               ]}
-              onChange={(value) => setOrderType(value as string)}
-              placeholder="Select order type"
+              onChange={(values: string[]) => setOrderTypes(values)}
+              value={orderTypes}
+              placeholder="Select order types"
             />
           </div>
           <div className="space-y-2">
@@ -140,8 +123,8 @@ const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
                 { value: "Dry", label: "Dry" },
                 { value: "Wet", label: "Wet" },
               ]}
-              onChange={(value) => setCleaningType(value)}
               placeholder="Select cleaning type"
+              onChange={(value: string) => setCleaningType(value)}
             />
           </div>
           <div className="space-y-2">
@@ -156,21 +139,18 @@ const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
                 readOnly
                 className="w-full bg-gray-100"
               />
-              <Badge variant="info">Estimate</Badge>
+              <Badge variant="info">Estimated</Badge>
             </div>
           </div>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting || orderTypes.length === 0 || !cleaningType}
+          >
+            {isSubmitting ? "Processing..." : "Submit Order"}
+          </Button>
         </form>
       </CardContent>
-      <div className="p-6 pt-0">
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={isSubmitting || !orderType || !cleaningType}
-          onClick={handleSubmit}
-        >
-          {isSubmitting ? "Processing..." : "Submit Order"}
-        </Button>
-      </div>
     </Card>
   );
 };
