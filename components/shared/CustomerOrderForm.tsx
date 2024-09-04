@@ -60,7 +60,7 @@ const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
         id: new Date().toISOString(),
         orderDateTime: new Date(),
         status: "Pending",
-        type: orderTypes.join(", "), // Convert array to comma-separated string
+        type: orderTypes, // Keep as array
         cleaningType: cleaningType as "Dry" | "Wet" | "Steam" | "Other",
         price: calculatePrice(orderTypes, cleaningType),
       },

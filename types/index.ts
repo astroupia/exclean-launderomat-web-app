@@ -32,13 +32,14 @@ export type ItemParams = {
 };
 
 export interface Order {
+  _id: string; // MongoDB ObjectId
   id: string;
   orderDateTime: Date;
-  status: string;
-  type: string;
+  status: "Pending" | "In Progress" | "Completed" | "Cancelled";
+  type: string[]; // Changed to string array
   cleaningType: "Dry" | "Wet" | "Steam" | "Other";
   price: number;
-  owner: string;
+  owner: string; // MongoDB ObjectId as string
 }
 
 export interface CreateOrderParams {
@@ -46,8 +47,8 @@ export interface CreateOrderParams {
   order: {
     id: string;
     orderDateTime: Date;
-    status: string;
-    type: string;
+    status: "Pending" | "In Progress" | "Completed" | "Cancelled";
+    type: string[]; // Changed to string array
     cleaningType: "Dry" | "Wet" | "Steam" | "Other";
     price: number;
   };
