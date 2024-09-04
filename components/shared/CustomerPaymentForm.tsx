@@ -19,10 +19,12 @@ const CustomerPaymentForm: React.FC<CustomerPaymentFormProps> = ({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const payment: PaymentParam = {
-      id: Date.now(),
+      id: Date.now().toString(), // Convert to string
       customer: "John Doe", // Replace with dynamic customer data in real scenarios
       amount,
       method,
+      orderId: "", // Add a placeholder for orderId
+      bankStatementUrl: "", // Add a placeholder for bankStatementUrl
       status: "Pending",
     };
     handlePaymentUpload(payment);
