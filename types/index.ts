@@ -34,16 +34,26 @@ export type ItemParams = {
 export interface Order {
   id: string;
   orderDateTime: Date;
-  status: string;
-  type: string;
-  cleaningType: string;
+  status: "Pending" | "In Progress" | "Completed" | "Cancelled";
+  type: string[]; // Changed to array of strings
+  cleaningType: "Dry" | "Wet" | "Steam" | "Other";
   price: number;
-  owner: string; // Assuming owner is a string representing the user ID
+  owner: string;
 }
 
 export type CreateOrderParams = {
   userId: string;
-  order: Order;
+  order: Omit<Order, "owner">;
+};
+
+export type UpdateOrderParams = Partial<Omit<Order, "id" | "owner">>;
+
+export type GetOrderParams = {
+  id: string;
+};
+
+export type GetUserOrdersParams = {
+  userId: string;
 };
 
 export interface Product {
@@ -52,3 +62,6 @@ export interface Product {
   quantity: string;
   unitPrice: string;
 }
+
+export type CreateProductParams = Omit<Product, "id">;
+export type UpdateProductParams = Partial<CreateProductParams>;
