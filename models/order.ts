@@ -20,6 +20,6 @@ const OrderSchema = new Schema({
 
 console.log("Defining Order model...");
 const Order = models.Order || model("Order", OrderSchema);
-console.log("Order model:", Order);
+// console.log("Order model:", Order);
 
 export default Order;
