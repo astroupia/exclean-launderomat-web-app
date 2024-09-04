@@ -5,11 +5,15 @@ import "./view.css";
 import SideButton, { SideButtonProps } from "@/components/shared/SideButton";
 import Order from "@/public/assets/icons/order.png";
 import Payment from "@/public/assets/icons/payment.png";
+import Inventory from "@/public/assets/icons/product.png";
 import { CreateOrderParams, Order as OrderType } from "@/types";
 import { getUserRole } from "@/lib/actions/user.action"; // Import the function to fetch user role
 import { useAuth, useUser } from "@clerk/nextjs";
 import { createOrder } from "@/lib/actions/order.action";
 import CustomerOrderForm from "@/components/shared/CustomerOrderForm";
+import AdminOrders from "@/components/shared/AdminOrders"; // Add this import
+import AdminInventory from "@/components/shared/AdminInventory"; // Add this import
+import AdminPayments from "@/components/shared/AdminPayments"; // Add this import
 
 // Array of side button data for customers
 const customerButtons: SideButtonProps[] = [
@@ -32,21 +36,15 @@ const adminButtons: SideButtonProps[] = [
     iconUrl: Order,
     variant: "not-selected",
   },
-];
-
-export interface toggleData {
-  id: string;
-  name: string;
-}
-
-export const toggles: toggleData[] = [
   {
-    id: "1",
-    name: "Order",
+    name: "Payment",
+    iconUrl: Payment,
+    variant: "not-selected",
   },
   {
-    id: "2",
-    name: "Payment",
+    name: "Inventory",
+    iconUrl: Inventory,
+    variant: "not-selected",
   },
 ];
 
@@ -54,7 +52,7 @@ const Dashboard: React.FC = () => {
   const { isLoaded, userId } = useAuth();
   const { user } = useUser();
 
-  const [view, setView] = useState<"customer" | "admin">("customer");
+  const [view, setView] = useState<"customer" | "admin">("admin");
   const [selectedBar, setSelectedBar] = useState<string>("Order");
   const [orders, setOrders] = useState<CreateOrderParams[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -65,7 +63,7 @@ const Dashboard: React.FC = () => {
         try {
           const role = await getUserRole(userId);
           setUserRole(role);
-          setView(role === "admin" ? "admin" : "customer");
+          setView(role === "admin" ? "admin" : "admin");
         } catch (error) {
           console.error("Failed to fetch user role:", error);
         }
@@ -119,6 +117,7 @@ const Dashboard: React.FC = () => {
   const handleToggleClick = (name: string) => {
     setSelectedBar(name);
   };
+  console.log(user?.id);
 
   return (
     <>
@@ -153,8 +152,10 @@ const Dashboard: React.FC = () => {
             {selectedBar === "Payment" && view === "customer" && (
               <h1 className="text-indigo-600">Customer Payment</h1>
             )}
-            {selectedBar === "Order" && view === "admin" && (
-              <h1 className="text-indigo-600">Admin Order Management</h1>
+            {selectedBar === "Order" && view === "admin" && <AdminOrders />}
+            {selectedBar === "Payment" && view === "admin" && <AdminPayments />}
+            {selectedBar === "Inventory" && view === "admin" && (
+              <AdminInventory />
             )}
           </div>
         </div>
