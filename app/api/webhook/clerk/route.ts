@@ -9,10 +9,10 @@ export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
-    console.log("Webhook Not Connected!");
-    throw new Error(
+    console.error(
       "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
     );
+    return new NextResponse("Webhook secret is missing", { status: 500 });
   }
 
   // Get the headers
@@ -23,8 +23,8 @@ export async function POST(req: Request) {
 
   // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    console.log("svix Not Connected!");
-    return new Response("Error occured -- no svix headers", {
+    console.error("svix headers are missing");
+    return new NextResponse("Error occurred -- no svix headers", {
       status: 400,
     });
   }
@@ -47,35 +47,45 @@ export async function POST(req: Request) {
     }) as WebhookEvent;
   } catch (err) {
     console.error("Error verifying webhook:", err);
-    return new Response("Error occured", {
-      status: 400,
-    });
+    return new NextResponse("Error occurred", { status: 400 });
   }
 
-  // For this guide, you simply log the payload to the console
   const { id } = evt.data;
   const eventType = evt.type;
 
   if (eventType === "user.created") {
     const { id, email_addresses, username, first_name, last_name } = evt.data;
+
     const user = {
       clerkId: id,
       email: email_addresses[0].email_address,
-      username: username,
+      username: username!,
       firstName: first_name || "",
       lastName: last_name || "",
+      role: "customer", // Default role
     };
-    const newUser = await createUser(user);
 
-    if (newUser) {
-      await clerkClient.users.updateUserMetadata(id, {
-        publicMetadata: {
-          userId: newUser._id,
-        },
-      });
+    try {
+      const newUser = await createUser(user);
+
+      if (newUser) {
+        await clerkClient.users.updateUserMetadata(id, {
+          publicMetadata: {
+            userId: newUser._id,
+          },
+        });
+      }
+
+      return NextResponse.json({ message: "User created", user: newUser });
+    } catch (error) {
+      console.error("Error creating user:", error);
+      return NextResponse.json(
+        { error: "Failed to create user" },
+        { status: 500 }
+      );
     }
-    return NextResponse.json({ message: "ok", user: newUser });
   }
+
   if (eventType === "user.updated") {
     const { id, first_name, last_name } = evt.data;
 
@@ -84,13 +94,18 @@ export async function POST(req: Request) {
       lastName: last_name || "",
     };
 
-    const updatedUser = await updateUser(id, user);
-
-    return NextResponse.json({ message: "OK", user: updatedUser });
+    try {
+      const updatedUser = await updateUser(id, user);
+      return NextResponse.json({ message: "User updated", user: updatedUser });
+    } catch (error) {
+      console.error("Error updating user:", error);
+      return NextResponse.json(
+        { error: "Failed to update user" },
+        { status: 500 }
+      );
+    }
   }
 
-  console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
-  console.log("Webhook body:", body);
-
-  return new Response("", { status: 200 });
+  console.log(`Webhook with an ID of ${id} and type of ${eventType}`);
+  return new NextResponse("Webhook processed", { status: 200 });
 }

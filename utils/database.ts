@@ -6,47 +6,33 @@ const MONGODB_URL = process.env.MONGODB_URL;
 
 console.log("MONGODB_URL:", MONGODB_URL); // Log the URL (make sure to remove this in production)
 
-let cached = (global as any).mongoose || { conn: null, promise: null };
+let cachedClient: mongoose.Mongoose | null = null;
+let cachedDb: any = null;
 
-export const connectToDatabase = async () => {
-  if (cached.conn) {
+export async function connectToDatabase() {
+  if (cachedClient && cachedDb) {
     console.log("Using cached database connection");
-    return cached.conn;
+    return { client: cachedClient, db: cachedDb };
   }
 
-  if (!MONGODB_URL) {
-    console.error(
-      "MONGODB_URL is undefined. Check your environment variables."
-    );
-    throw new Error("MONGODB_URL is missing");
+  if (!process.env.MONGODB_URL) {
+    throw new Error("Please define the MONGODB_URL environment variable");
   }
 
   try {
-    console.log("Establishing new database connection");
-    cached.promise =
-      cached.promise ||
-      mongoose.connect(MONGODB_URL, {
-        dbName: "exclean",
-        bufferCommands: false,
-      });
+    const client = await mongoose.connect(process.env.MONGODB_URL);
+    const db = client.connection.db;
 
-    cached.conn = await cached.promise;
-    console.log("Database connection established successfully");
+    cachedClient = client;
+    cachedDb = db;
 
-    // Set up event listeners after connection is established
-    setupMongooseListeners();
-
-    return cached.conn;
+    console.log("New database connection established");
+    return { client, db };
   } catch (error) {
-    console.error("Failed to establish database connection:", error);
-    if (error instanceof Error) {
-      console.error("Error name:", error.name);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-    }
+    console.error("Error connecting to database:", error);
     throw error;
   }
-};
+}
 
 // Debugging: Log when the module is loaded
 console.log("database.ts module loaded");

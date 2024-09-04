@@ -32,18 +32,36 @@ export type ItemParams = {
 };
 
 export interface Order {
+  _id: string; // MongoDB ObjectId
   id: string;
   orderDateTime: Date;
-  status: string;
-  type: string;
-  cleaningType: string;
+  status: "Pending" | "In Progress" | "Completed" | "Cancelled";
+  type: string[]; // Changed to string array
+  cleaningType: "Dry" | "Wet" | "Steam" | "Other";
   price: number;
-  owner: string; // Assuming owner is a string representing the user ID
+  owner: string; // MongoDB ObjectId as string
 }
 
-export type CreateOrderParams = {
+export interface CreateOrderParams {
   userId: string;
-  order: Order;
+  order: {
+    id: string;
+    orderDateTime: Date;
+    status: "Pending" | "In Progress" | "Completed" | "Cancelled";
+    type: string[]; // Changed to string array
+    cleaningType: "Dry" | "Wet" | "Steam" | "Other";
+    price: number;
+  };
+}
+
+export type UpdateOrderParams = Partial<Omit<Order, "id" | "owner">>;
+
+export type GetOrderParams = {
+  id: string;
+};
+
+export type GetUserOrdersParams = {
+  userId: string;
 };
 
 export interface Product {
@@ -52,3 +70,6 @@ export interface Product {
   quantity: string;
   unitPrice: string;
 }
+
+export type CreateProductParams = Omit<Product, "id">;
+export type UpdateProductParams = Partial<CreateProductParams>;

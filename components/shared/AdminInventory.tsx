@@ -29,7 +29,7 @@ function AdminInventory() {
   }, []);
 
   return (
-    <Card>
+    <Card className="w-full">
       {/* CardHeader for the title of the inventory management section */}
       <CardHeader>
         <CardTitle>Inventory Management</CardTitle>
@@ -52,7 +52,7 @@ function AdminInventory() {
                 <TableCell>{product.id}</TableCell>
                 <TableCell>{product.name}</TableCell>
                 <TableCell>{product.quantity}</TableCell>
-                <TableCell>{product.unitPrice}</TableCell>
+                <TableCell>${product.unitPrice}</TableCell>
               </TableRow>
             ))}
           </TableBody>
