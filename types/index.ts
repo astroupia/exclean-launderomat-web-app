@@ -34,17 +34,24 @@ export type ItemParams = {
 export interface Order {
   id: string;
   orderDateTime: Date;
-  status: "Pending" | "In Progress" | "Completed" | "Cancelled";
-  type: string[]; // Changed to array of strings
+  status: string;
+  type: string;
   cleaningType: "Dry" | "Wet" | "Steam" | "Other";
   price: number;
   owner: string;
 }
 
-export type CreateOrderParams = {
+export interface CreateOrderParams {
   userId: string;
-  order: Omit<Order, "owner">;
-};
+  order: {
+    id: string;
+    orderDateTime: Date;
+    status: string;
+    type: string;
+    cleaningType: "Dry" | "Wet" | "Steam" | "Other";
+    price: number;
+  };
+}
 
 export type UpdateOrderParams = Partial<Omit<Order, "id" | "owner">>;
 

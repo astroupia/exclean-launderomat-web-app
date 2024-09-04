@@ -93,7 +93,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = (event: React.FormEvent) => {
+  const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
     const order: CreateOrderParams = {
@@ -102,13 +102,16 @@ const Dashboard: React.FC = () => {
         id: new Date().toISOString(),
         orderDateTime: new Date(),
         status: "Pending",
-        type: formData.get("type") as string,
-        owner: userId || "",
-        cleaningType: formData.get("cleaningType") as string,
-        price: Number(formData.get("price")),
+        type: (formData.get("type") as string) || "",
+        cleaningType: formData.get("cleaningType") as
+          | "Dry"
+          | "Wet"
+          | "Steam"
+          | "Other",
+        price: parseFloat(formData.get("price") as string) || 0,
       },
     };
-    handleOrderRequest(order);
+    await handleOrderRequest(order);
   };
 
   const handleToggleClick = (name: string) => {
