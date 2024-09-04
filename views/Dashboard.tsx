@@ -137,7 +137,7 @@ const Dashboard: React.FC = () => {
               )
             )}
           </div>
-          <div className="dashboard mx-8 p-4 border">
+          <div className="dashboard mx-8 p-4">
             {selectedBar === "Order" && view === "customer" && (
               <CustomerOrderForm
                 handleOrderRequest={(order: CreateOrderParams) =>
