@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { connectToDatabase } from "../../utils/database";
+import { connectToDatabase } from "@/utils/database";
 import { CreateUserParams, UpdateUserParams } from "@/types";
 import User from "../../models/user"; // Import the User model
 
@@ -13,12 +13,22 @@ export async function createUser(userData: {
   role: string;
 }) {
   try {
-    connectToDatabase();
+    console.log("Connecting to database...");
+    await connectToDatabase();
+    console.log("Connected to database. Creating user...");
 
     const newUser = await User.create(userData);
+    console.log("User created successfully:", JSON.stringify(newUser));
     return newUser;
   } catch (error) {
-    console.error("Error in createUser:", error);
+    console.error("Error in createUser:");
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    } else {
+      console.error("Unknown error:", JSON.stringify(error));
+    }
     throw error;
   }
 }
@@ -90,6 +100,10 @@ export async function testUserFunctions() {
   try {
     console.log("Starting test function...");
 
+    // Ensure database connection
+    await connectToDatabase();
+    console.log("Connected to database.");
+
     // 1. Create a dummy user
     const dummyUser: CreateUserParams = {
       clerkId: "test_clerk_id_" + Date.now(),
@@ -100,10 +114,7 @@ export async function testUserFunctions() {
     };
     console.log("Creating dummy user...");
     const createdUser = await createUser({
-      clerkId: dummyUser.clerkId,
-      email: dummyUser.email,
-      firstName: dummyUser.firstName,
-      lastName: dummyUser.lastName,
+      ...dummyUser,
       role: dummyUser.role || "customer",
     });
     console.log("Dummy user created:", createdUser);
@@ -142,3 +153,5 @@ export async function testUserFunctions() {
     );
   }
 }
+
+testUserFunctions();

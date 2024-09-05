@@ -1,7 +1,8 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { clerkClient, WebhookEvent } from "@clerk/nextjs/server";
-import { createUser, updateUser } from "@/lib/actions/user.action";
+import { createUser, updateUser, deleteUser } from "@/lib/actions/user.action";
+import { connectToDatabase } from "@/utils/database";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -53,18 +54,23 @@ export async function POST(req: Request) {
   const { id } = evt.data;
   const eventType = evt.type;
 
+  console.log(`Received event ${eventType}`);
+
   if (eventType === "user.created") {
     const { id, email_addresses, first_name, last_name } = evt.data;
     const user = {
       clerkId: id,
       email: email_addresses[0]?.email_address,
       firstName: first_name || "",
-      lastName: last_name || "", // This will convert null to an empty string
+      lastName: last_name || "",
       role: "customer",
     };
 
     try {
-      console.log("Attempting to create user:", JSON.stringify(user));
+      console.log("Connecting to database...");
+      await connectToDatabase();
+      console.log("Connected to database. Creating user...");
+
       const newUser = await createUser(user);
       console.log("New user created:", JSON.stringify(newUser));
       return new Response(
