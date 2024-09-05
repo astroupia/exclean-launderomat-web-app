@@ -1,38 +1,25 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
 
 const MONGODB_URL = process.env.MONGODB_URL;
 
-console.log("MONGODB_URL:", MONGODB_URL); // Log the URL (make sure to remove this in production)
+let cached = (global as any).mongoose || { conn: null, promise: null };
 
-let cachedClient: mongoose.Mongoose | null = null;
-let cachedDb: any = null;
+export const connectToDatabase = async () => {
+  if (cached.conn) return cached.conn;
 
-export async function connectToDatabase() {
-  if (cachedClient && cachedDb) {
-    console.log("Using cached database connection");
-    return { client: cachedClient, db: cachedDb };
-  }
+  if (!MONGODB_URL) throw new Error("MONGODB_URL is missing");
 
-  if (!process.env.MONGODB_URL) {
-    throw new Error("Please define the MONGODB_URL environment variable");
-  }
+  cached.promise =
+    cached.promise ||
+    mongoose.connect(MONGODB_URL, {
+      dbName: "exclean", // Change this to your database name
+      bufferCommands: false,
+    });
 
-  try {
-    const client = await mongoose.connect(process.env.MONGODB_URL);
-    const db = client.connection.db;
+  cached.conn = await cached.promise;
 
-    cachedClient = client;
-    cachedDb = db;
-
-    console.log("New database connection established");
-    return { client, db };
-  } catch (error) {
-    console.error("Error connecting to database:", error);
-    throw error;
-  }
-}
+  return cached.conn;
+};
 
 // Debugging: Log when the module is loaded
 console.log("database.ts module loaded");
@@ -49,6 +36,9 @@ function setupMongooseListeners() {
     console.log("Mongoose disconnected")
   );
 }
+
+// Call the function to set up listeners
+setupMongooseListeners();
 
 // Debugging: Handle process termination
 process.on("SIGINT", async () => {

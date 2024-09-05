@@ -57,13 +57,14 @@ const Dashboard: React.FC = () => {
   const [orders, setOrders] = useState<CreateOrderParams[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
 
+  // Use useEffect to handle any client-side only logic
   useEffect(() => {
     async function fetchUserRole() {
       if (isLoaded && userId) {
         try {
           const role = await getUserRole(userId);
           setUserRole(role);
-          setView(role === "admin" ? "admin" : "admin");
+          setView(role === "admin" ? "admin" : "customer");
         } catch (error) {
           console.error("Failed to fetch user role:", error);
         }
@@ -72,6 +73,7 @@ const Dashboard: React.FC = () => {
     fetchUserRole();
   }, [isLoaded, userId]);
 
+  // Render a loading state while waiting for auth to load
   if (!isLoaded) {
     return <div>Loading...</div>;
   }
@@ -91,38 +93,17 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    const order: CreateOrderParams = {
-      userId: userId || "",
-      order: {
-        id: new Date().toISOString(),
-        orderDateTime: new Date(),
-        status: "Pending",
-        type: (formData.get("type") as string)
-          .split(",")
-          .map((item) => item.trim()), // Convert comma-separated string to array
-        cleaningType: formData.get("cleaningType") as
-          | "Dry"
-          | "Wet"
-          | "Steam"
-          | "Other",
-        price: parseFloat(formData.get("price") as string) || 0,
-      },
-    };
-    await handleOrderRequest(order);
-  };
-
   const handleToggleClick = (name: string) => {
     setSelectedBar(name);
   };
-  console.log(user?.id);
+
+  // Use optional chaining to safely access user properties
+  const userName = user?.firstName || "User";
 
   return (
     <>
       <h1 className="word text-indigo-600 font-bold text-2xl">
-        {user?.firstName || "User"}'s Dashboard
+        {userName}'s Dashboard
       </h1>
       <section className={`bg-black section`}>
         <div className="flex">
