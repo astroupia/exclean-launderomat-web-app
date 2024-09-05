@@ -7,13 +7,18 @@ import Order from "@/public/assets/icons/order.png";
 import Payment from "@/public/assets/icons/payment.png";
 import Inventory from "@/public/assets/icons/product.png";
 import { CreateOrderParams, Order as OrderType } from "@/types";
-import { getUserRole } from "@/lib/actions/user.action"; // Import the function to fetch user role
-import { useAuth, useUser } from "@clerk/nextjs";
-import { createOrder } from "@/lib/actions/order.action";
+import {
+  getUserRole,
+  getUserById,
+  getUserByEmail,
+} from "@/lib/actions/user.action";
+import { useAuth, useUser } from "@clerk/nextjs"; // Clerk's authentication
+import { createOrder, getUserOrders } from "@/lib/actions/order.action";
 import CustomerOrderForm from "@/components/shared/CustomerOrderForm";
-import AdminOrders from "@/components/shared/AdminOrders"; // Add this import
-import AdminInventory from "@/components/shared/AdminInventory"; // Add this import
-import AdminPayments from "@/components/shared/AdminPayments"; // Add this import
+import AdminOrders from "@/components/shared/AdminOrders";
+import AdminInventory from "@/components/shared/AdminInventory";
+import AdminPayments from "@/components/shared/AdminPayments";
+import CustomerOrderPreview from "@/components/shared/CustomerOrderPreview";
 
 // Array of side button data for customers
 const customerButtons: SideButtonProps[] = [
@@ -51,54 +56,85 @@ const adminButtons: SideButtonProps[] = [
 const Dashboard: React.FC = () => {
   const { isLoaded, userId } = useAuth();
   const { user } = useUser();
+  const email = user?.emailAddresses[0].emailAddress;
 
   const [view, setView] = useState<"customer" | "admin">("customer");
   const [selectedBar, setSelectedBar] = useState<string>("Order");
   const [orders, setOrders] = useState<CreateOrderParams[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userOrders, setUserOrders] = useState<OrderType[]>([]);
 
-  // Use useEffect to handle any client-side only logic
+  // Validate order status helper
+  const validateOrderStatus = (status: string) => {
+    const validStatuses = ["pending", "processing", "completed"];
+    return validStatuses.includes(status) ? status : "pending";
+  };
+
+  // Fetch user role and orders
   useEffect(() => {
-    async function fetchUserRole() {
-      if (isLoaded && userId) {
+    const fetchUserRole = async () => {
+      if (userId) {
+        const role = await getUserRole(userId);
+        setView(role === "admin" ? "admin" : "customer");
+      }
+    };
+
+    const fetchUserOrders = async () => {
+      if (userId) {
         try {
-          const role = await getUserRole(userId);
-          setUserRole(role);
-          setView(role === "admin" ? "admin" : "customer");
+          const orders = await getUserOrders(userId);
+          setUserOrders(orders as unknown as OrderType[]);
         } catch (error) {
-          console.error("Failed to fetch user role:", error);
+          console.error("Failed to fetch user orders:", error);
         }
       }
+    };
+
+    if (isLoaded && userId) {
+      fetchUserRole();
+      fetchUserOrders();
     }
-    fetchUserRole();
   }, [isLoaded, userId]);
 
-  // Render a loading state while waiting for auth to load
+  // Handle loading state
   if (!isLoaded) {
     return <div>Loading...</div>;
   }
 
+  // Handle order creation
   const handleOrderRequest = async (order: CreateOrderParams) => {
     try {
       const createdOrder = await createOrder(order);
-      setOrders((prevOrders) => [...prevOrders, createdOrder]);
-      console.log("Order created successfully:", createdOrder);
-    } catch (error: unknown) {
-      console.error("Failed to create order:", error);
-      if (error instanceof Error) {
-        alert(`Failed to create order: ${error.message}`);
-      } else {
-        alert("Failed to create order: An unknown error occurred");
+      if (!("_id" in createdOrder)) {
+        throw new Error("Created order does not have an _id");
       }
+
+      const orderWithId = { ...order, _id: createdOrder._id };
+      setOrders((prevOrders) => [...prevOrders, orderWithId]);
+      alert("Order created successfully!");
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      alert(
+        `Failed to create order: ${
+          error instanceof Error ? error.message : "An unknown error occurred"
+        }`
+      );
     }
   };
 
+  // Toggle bar selection
   const handleToggleClick = (name: string) => {
     setSelectedBar(name);
   };
 
-  // Use optional chaining to safely access user properties
+  // User greeting
   const userName = user?.firstName || "User";
+
+  const handleViewDetails = (orderId: string) => {
+    // Implement the logic to view order details
+    console.log(`Viewing details for order: ${orderId}`);
+    // You might want to navigate to a details page or open a modal here
+  };
 
   return (
     <>
@@ -124,11 +160,42 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="dashboard mx-8 p-4">
             {selectedBar === "Order" && view === "customer" && (
-              <CustomerOrderForm
-                handleOrderRequest={(order: CreateOrderParams) =>
-                  handleOrderRequest(order)
-                }
-              />
+              <div className="w-full flex flex-col md:flex-row gap-4">
+                <div className="w-full md:w-1/2">
+                  <CustomerOrderForm handleOrderRequest={handleOrderRequest} />
+                </div>
+                {/* <div className="w-full md:w-1/2">
+                  {userOrders.length > 0 ? (
+                    <CustomerOrderPreview
+                      order={{
+                        id: userOrders[0]._id,
+                        orderDateTime: new Date(userOrders[0].orderDateTime),
+                        status: validateOrderStatus(userOrders[0].status) as
+                          | "Pending"
+                          | "In Progress"
+                          | "Completed"
+                          | "Cancelled",
+                        type: Array.isArray(userOrders[0].type)
+                          ? userOrders[0].type[0]
+                          : (userOrders[0].type as
+                              | "Dry"
+                              | "Wet"
+                              | "Steam"
+                              | "Other"),
+                        cleaningType: userOrders[0].cleaningType as
+                          | "Dry"
+                          | "Wet"
+                          | "Steam"
+                          | "Other",
+                        price: userOrders[0].price,
+                      }}
+                      onViewDetails={() => handleViewDetails(userOrders[0]._id)}
+                    />
+                  ) : (
+                    <p>No orders available</p>
+                  )}
+                </div> */}
+              </div>
             )}
             {selectedBar === "Payment" && view === "customer" && (
               <h1 className="text-indigo-600">Customer Payment</h1>
