@@ -58,12 +58,13 @@ export async function POST(req: Request) {
     const user = {
       clerkId: id,
       email: email_addresses[0]?.email_address,
-      role: "customer",
       firstName: first_name || "",
       lastName: last_name || "",
+      role: "customer",
     };
 
     try {
+      console.log("Attempting to create user:", user);
       const newUser = await createUser(user);
       console.log("New user created:", newUser);
       return new Response(
@@ -73,14 +74,18 @@ export async function POST(req: Request) {
     } catch (error) {
       console.error("Error creating user:", error);
       if (error instanceof Error) {
+        console.error("Error details:", error.message);
+        console.error("Error stack:", error.stack);
         return new Response(
           JSON.stringify({
             error: "Failed to create user",
             details: error.message,
+            stack: error.stack,
           }),
           { status: 500 }
         );
       } else {
+        console.error("Unknown error:", error);
         return new Response(
           JSON.stringify({
             error: "Failed to create user",
