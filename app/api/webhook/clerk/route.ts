@@ -54,35 +54,41 @@ export async function POST(req: Request) {
   const eventType = evt.type;
 
   if (eventType === "user.created") {
-    const { id, email_addresses, username, first_name, last_name } = evt.data;
-
+    const { id, email_addresses, first_name, last_name } = evt.data;
     const user = {
       clerkId: id,
-      email: email_addresses[0].email_address,
-      username: username!,
+      email: email_addresses[0]?.email_address,
+      role: "customer",
       firstName: first_name || "",
       lastName: last_name || "",
-      role: "customer", // Default role
     };
 
     try {
       const newUser = await createUser(user);
-
-      if (newUser) {
-        await clerkClient.users.updateUserMetadata(id, {
-          publicMetadata: {
-            userId: newUser._id,
-          },
-        });
-      }
-
-      return NextResponse.json({ message: "ok", user: newUser });
+      console.log("New user created:", newUser);
+      return new Response(
+        JSON.stringify({ message: "User created successfully" }),
+        { status: 200 }
+      );
     } catch (error) {
       console.error("Error creating user:", error);
-      return NextResponse.json(
-        { error: "Failed to create user" },
-        { status: 500 }
-      );
+      if (error instanceof Error) {
+        return new Response(
+          JSON.stringify({
+            error: "Failed to create user",
+            details: error.message,
+          }),
+          { status: 500 }
+        );
+      } else {
+        return new Response(
+          JSON.stringify({
+            error: "Failed to create user",
+            details: "An unknown error occurred",
+          }),
+          { status: 500 }
+        );
+      }
     }
   }
 
