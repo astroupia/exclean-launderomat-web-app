@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { connectToDatabase } from "@/utils/database";
 import { CreateUserParams, UpdateUserParams } from "@/types";
-import User from "../../models/user"; // Import the User model
+import User from "@/models/user"; // Import the User model
 
 export async function createUser(userData: {
   clerkId: string;
@@ -13,36 +13,35 @@ export async function createUser(userData: {
   role: string;
 }) {
   try {
-    console.log("Connecting to database...");
     await connectToDatabase();
-    console.log("Connected to database. Creating user...");
 
     const newUser = await User.create(userData);
-    console.log("User created successfully:", JSON.stringify(newUser));
+
     return newUser;
   } catch (error) {
-    console.error("Error in createUser:");
-    if (error instanceof Error) {
-      console.error("Error name:", error.name);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-    } else {
-      console.error("Unknown error:", JSON.stringify(error));
-    }
+    console.error("Error in createUser:", error);
     throw error;
   }
 }
 
 export async function getUserById(userId: string) {
   try {
+    // Ensure database connection is established
     await connectToDatabase();
-    const user = await User.findById(userId);
-    if (!user) throw new Error("User not found");
-    console.log("User Created");
-    return JSON.parse(JSON.stringify(user));
+
+    console.log(`Searching for user with clerkId: ${userId}`);
+
+    const user = await User.findOne({ clerkId: userId }).lean();
+
+    if (!user) {
+      console.log(`User with clerkId not found`);
+      return null;
+    }
+
+    console.log(`User found: ${JSON.stringify(user)}`);
+    return user; // Returning the plain user object directly
   } catch (error) {
-    console.error("Error getting user:", error);
-    throw new Error("Failed to get user");
+    throw new Error(`Error fetching user with clerkId`);
   }
 }
 
@@ -71,7 +70,6 @@ export async function getUserRole(userId: string): Promise<string> {
     }
     return user.role || "customer";
   } catch (error) {
-    console.error("Error in getUserRole:", error);
     throw new Error("Failed to fetch user role");
   }
 }
@@ -83,9 +81,6 @@ export async function deleteUser(clerkId: string) {
     if (!userToDelete) {
       throw new Error("User not found");
     }
-    // If you have Order and Campaign models, uncomment and adjust these lines
-    // await Order.updateMany({ buyer: userToDelete._id }, { $unset: { buyer: 1 } });
-    // await Campaign.updateMany({ organizer: userToDelete._id }, { $pull: { organizer: userToDelete._id } });
     const deletedUser = await User.findByIdAndDelete(userToDelete._id);
     revalidatePath("/"); // Revalidate the path where user data is displayed
     return deletedUser ? JSON.parse(JSON.stringify(deletedUser)) : null;
@@ -95,63 +90,28 @@ export async function deleteUser(clerkId: string) {
   }
 }
 
-// Test function
-export async function testUserFunctions() {
+export async function getUserByEmail(email: string | undefined) {
   try {
-    console.log("Starting test function...");
-
-    // Ensure database connection
     await connectToDatabase();
-    console.log("Connected to database.");
+    console.log("Connected to database");
+    if (email === null) {
+      console.log("Email is null, cannot search for user");
+      return null;
+    }
 
-    // 1. Create a dummy user
-    const dummyUser: CreateUserParams = {
-      clerkId: "test_clerk_id_" + Date.now(),
-      email: "test@example.com",
-      firstName: "Test",
-      lastName: "User",
-      role: "customer",
-    };
-    console.log("Creating dummy user...");
-    const createdUser = await createUser({
-      ...dummyUser,
-      role: dummyUser.role || "customer",
-    });
-    console.log("Dummy user created:", createdUser);
+    console.log(`Searching for user with email: ${email}`);
 
-    // 2. Retrieve the user's role
-    console.log("Retrieving user role...");
-    const userRole = await getUserRole(createdUser.clerkId);
-    console.log("User role:", userRole);
+    const user = await User.findOne({ email: email?.toLowerCase() });
 
-    // 3. Update the user
-    const updateData: UpdateUserParams = {
-      firstName: "Updated",
-      lastName: "TestUser",
-    };
+    if (!user) {
+      console.log(`User with email ${email} not found`);
+      return null;
+    }
 
-    console.log("Updating user...");
-    const updatedUser = await updateUser(createdUser.clerkId, updateData);
-    console.log("Updated user:", updatedUser);
-
-    // 4. Get user by ID
-    console.log("Retrieving user by ID...");
-    const retrievedUser = await getUserById(createdUser._id);
-    console.log("Retrieved user:", retrievedUser);
-
-    // 5. Delete the user
-    console.log("Deleting user...");
-    const deletedUser = await deleteUser(createdUser.clerkId);
-    console.log("Deleted user:", deletedUser);
-
-    console.log("Test completed successfully");
-    return "Test completed successfully";
+    console.log(`User found:`, JSON.stringify(user));
+    return user.toObject();
   } catch (error) {
-    console.error("Error in test function:", error);
-    return (
-      "Test failed: " + (error instanceof Error ? error.message : String(error))
-    );
+    console.error("Error in getUserByEmail:", error);
+    throw error;
   }
 }
-
-testUserFunctions();

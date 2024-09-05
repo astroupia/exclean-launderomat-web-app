@@ -1,4 +1,4 @@
-import { Schema, models, model } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 console.log("Defining User model...");
 
@@ -10,10 +10,6 @@ const UserSchema = new Schema({
   role: { type: String, required: true, default: "customer" },
 });
 
-// console.log("User schema defined:", UserSchema);
-
 const User = models.User || model("User", UserSchema);
-
-// console.log("User model:", User);
 
 export default User;
