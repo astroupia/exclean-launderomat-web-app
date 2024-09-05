@@ -17,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <ClerkProvider>
         <body>{children}</body>
+        <SpeedInsights />
       </ClerkProvider>
     </html>
   );
