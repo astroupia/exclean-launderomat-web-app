@@ -75,3 +75,14 @@ export interface Product {
 
 export type CreateProductParams = Omit<Product, "id">;
 export type UpdateProductParams = Partial<CreateProductParams>;
+
+export type OrderType = {
+  _id: string;
+  id: string;
+  orderDateTime: Date;
+  status: string;
+  type: string;
+  cleaningType: string;
+  price: number;
+  owner: string;
+};

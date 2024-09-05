@@ -1,46 +1,36 @@
 import mongoose from "mongoose";
 
-const MONGODB_URL = process.env.MONGODB_URL;
+let isConnected: boolean = false;
 
-if (!MONGODB_URL) {
-  throw new Error(
-    "Please define the MONGODB_URL environment variable inside .env.local"
-  );
-}
-
-let cached: {
-  conn: mongoose.Connection | null;
-  promise: Promise<mongoose.Connection> | null;
-} = (global as any).mongoose;
-
-if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
-}
-
-export async function connectToDatabase() {
-  if (cached.conn) {
-    return cached.conn;
+export const connectToDatabase = async () => {
+  if (isConnected) {
+    console.log("Using existing database connection");
+    return;
   }
 
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-      dbName: "exclean", // Specify the database name here
-    };
+  const dbUrl = process.env.MONGODB_URL;
+  const dbName = "exclean"; // Hardcode the database name
 
-    cached.promise = mongoose.connect(MONGODB_URL!, opts).then((mongoose) => {
-      return mongoose.connection;
-    });
+  if (!dbUrl) {
+    throw new Error("MongoDB URL is not defined in environment variables");
   }
 
   try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
+    const db = await mongoose.connect(dbUrl, { dbName });
+    isConnected = true;
+    console.log(`Connected to database: ${db.connection.name}`);
+  } catch (error) {
+    console.error("Error connecting to database:", error);
+    throw error; // Re-throw the error for better error handling
   }
+};
 
-  return cached.conn;
+export class ObjectId {
+  constructor(id?: string) {
+    return new mongoose.Types.ObjectId(id);
+  }
 }
 
-export { mongoose };
+export function serializeObjectId(id: mongoose.Types.ObjectId): string {
+  return id.toString();
+}

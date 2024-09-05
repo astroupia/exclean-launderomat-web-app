@@ -9,8 +9,8 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node", // Use Node.js resolution to prevent bundler issues
-    "resolveJsonModule": true, // Allow importing JSON files as modules
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
@@ -21,7 +21,9 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node", "jest", "react"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
