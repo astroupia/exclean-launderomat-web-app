@@ -5,13 +5,21 @@ import { connectToDatabase } from "../../utils/database";
 import { CreateUserParams, UpdateUserParams } from "@/types";
 import User from "../../models/user"; // Import the User model
 
-export async function createUser(user: CreateUserParams) {
+export async function createUser(userData: {
+  clerkId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}) {
   try {
-    await connectToDatabase();
-    const newUser = await User.create(user);
-    return JSON.parse(JSON.stringify(newUser));
+    connectToDatabase();
+
+    const newUser = await User.create(userData);
+    return newUser;
   } catch (error) {
-    throw new Error("Failed to create user");
+    console.error("Error in createUser:", error);
+    throw error;
   }
 }
 
@@ -90,9 +98,14 @@ export async function testUserFunctions() {
       lastName: "User",
       role: "customer",
     };
-
     console.log("Creating dummy user...");
-    const createdUser = await createUser(dummyUser);
+    const createdUser = await createUser({
+      clerkId: dummyUser.clerkId,
+      email: dummyUser.email,
+      firstName: dummyUser.firstName,
+      lastName: dummyUser.lastName,
+      role: dummyUser.role || "customer",
+    });
     console.log("Dummy user created:", createdUser);
 
     // 2. Retrieve the user's role
