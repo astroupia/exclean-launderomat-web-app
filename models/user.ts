@@ -5,9 +5,9 @@ console.log("Defining User model...");
 const UserSchema = new Schema({
   clerkId: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
-  role: { type: String, required: true }, // Add the role field
   firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  lastName: { type: String, default: "" }, // Change this line
+  role: { type: String, required: true, default: "customer" },
 });
 
 // console.log("User schema defined:", UserSchema);

@@ -59,14 +59,14 @@ export async function POST(req: Request) {
       clerkId: id,
       email: email_addresses[0]?.email_address,
       firstName: first_name || "",
-      lastName: last_name || "",
+      lastName: last_name || "", // This will convert null to an empty string
       role: "customer",
     };
 
     try {
-      console.log("Attempting to create user:", user);
+      console.log("Attempting to create user:", JSON.stringify(user));
       const newUser = await createUser(user);
-      console.log("New user created:", newUser);
+      console.log("New user created:", JSON.stringify(newUser));
       return new Response(
         JSON.stringify({ message: "User created successfully" }),
         { status: 200 }
