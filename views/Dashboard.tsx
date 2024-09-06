@@ -141,11 +141,15 @@ const Dashboard: React.FC = () => {
   const handlePaymentUpload = async (paymentData: any) => {
     try {
       const result = await uploadPayment(paymentData);
-      if (result.success) {
+      if ("success" in result && result.success) {
         alert("Payment uploaded successfully!");
         // Optionally, you can update the local state or refetch payment history here
       } else {
-        throw new Error(result.message || "Failed to upload payment");
+        throw new Error(
+          "error" in result && typeof result.error === "string"
+            ? result.error
+            : "Failed to upload payment"
+        );
       }
     } catch (error) {
       console.error("Failed to upload payment:", error);
