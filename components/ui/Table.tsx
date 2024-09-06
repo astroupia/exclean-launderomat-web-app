@@ -16,9 +16,13 @@ interface TableHeaderProps extends TableProps {
  */
 export const Table: React.FC<TableProps> = ({ children, className }) => {
   return (
-    <table className={`min-w-full divide-y divide-gray-200 ${className || ""}`}>
-      {children}
-    </table>
+    <div className="overflow-x-auto">
+      <table
+        className={`min-w-full divide-y divide-gray-200 ${className || ""}`}
+      >
+        {children}
+      </table>
+    </div>
   );
 };
 
@@ -83,7 +87,9 @@ export const TableBody: React.FC<TableProps> = ({ children, className }) => {
 export const TableCell: React.FC<TableProps> = ({ children, className }) => {
   return (
     <td
-      className={`px-6 py-4 whitespace-nowrap text-gray-700 ${className || ""}`}
+      className={`px-2 py-2 sm:px-6 sm:py-4 whitespace-normal sm:whitespace-nowrap text-gray-700 ${
+        className || ""
+      }`}
     >
       {children}
     </td>

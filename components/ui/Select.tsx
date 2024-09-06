@@ -36,14 +36,18 @@ export function Select({
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <SelectTrigger>
-        <div onClick={() => setIsOpen(!isOpen)}>
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex justify-between items-center"
+        >
           <SelectValue>
             {selectedItem
               ? items.find((item) => item.value === selectedItem)?.label
               : placeholder}
           </SelectValue>
+          <ChevronDown size={20} />
         </div>
       </SelectTrigger>
       {isOpen && (
@@ -65,7 +69,7 @@ export function Select({
 
 export function SelectTrigger({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-indigo-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-indigo-600">
+    <div className="bg-indigo-500 text-white px-3 py-2 rounded cursor-pointer hover:bg-indigo-600 text-sm sm:text-base">
       {children}
     </div>
   );
@@ -159,17 +163,17 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   };
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative w-full" ref={ref}>
       <div
-        className="flex items-center justify-between p-2 border rounded-md cursor-pointer"
+        className="flex items-center justify-between p-2 border rounded-md cursor-pointer text-sm sm:text-base"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1 max-w-[calc(100%-20px)]">
           {value.length > 0 ? (
             value.map((v) => (
               <span
                 key={v}
-                className="bg-gray-200 px-2 py-1 rounded-md text-sm"
+                className="bg-gray-200 px-2 py-1 rounded-md text-xs sm:text-sm mb-1 mr-1"
               >
                 {options.find((opt) => opt.value === v)?.label}
                 <button
@@ -179,7 +183,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                     toggleOption(v);
                   }}
                 >
-                  <X size={14} />
+                  <X size={12} />
                 </button>
               </span>
             ))

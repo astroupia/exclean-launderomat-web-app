@@ -52,40 +52,46 @@ const CustomerOrderPreview: React.FC<CustomerOrderPreviewProps> = ({
 
   return (
     <Card className="mb-4">
-      <CardHeader>Order Preview</CardHeader>
+      <CardHeader className="text-xl sm:text-2xl">Order Preview</CardHeader>
       <CardContent>
-        <Table>
-          <TableBody>
-            <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableCell>{order.id}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableCell>{order.orderDateTime.toLocaleDateString()}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableHead>Status</TableHead>
-              <TableCell>
-                <Badge variant={getBadgeVariant(order.status)}>
-                  {order.status}
-                </Badge>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableHead>Type</TableHead>
-              <TableCell>{order.type}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableHead>Cleaning Type</TableHead>
-              <TableCell>{order.cleaningType}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableHead>Price</TableHead>
-              <TableCell>${order.price.toFixed(2)}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+        <div className="overflow-x-auto">
+          {" "}
+          {/* Add horizontal scroll for small screens */}
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableHead className="w-1/3">Order ID</TableHead>
+                <TableCell>{order.id}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableHead className="w-1/3">Date</TableHead>
+                <TableCell>
+                  {order.orderDateTime.toLocaleDateString()}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableHead className="w-1/3">Status</TableHead>
+                <TableCell>
+                  <Badge variant={getBadgeVariant(order.status)}>
+                    {order.status}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableHead className="w-1/3">Type</TableHead>
+                <TableCell>{order.type}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableHead className="w-1/3">Cleaning Type</TableHead>
+                <TableCell>{order.cleaningType}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableHead className="w-1/3">Price</TableHead>
+                <TableCell>${order.price.toFixed(2)}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
         <div className="mt-4 text-right">
           <Button onClick={() => onViewDetails(order.id)}>View Details</Button>
         </div>

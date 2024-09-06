@@ -25,21 +25,21 @@ const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
 
   const calculatePrice = (types: string[], cleaningType: string) => {
     const basePrices: { [key: string]: number } = {
-      Shirt: 10,
-      Jeans: 20,
-      Blouse: 15,
-      Suit: 30,
-      Dress: 25,
-      Shoes: 12,
-      Trouser: 18,
-      Sweater: 22,
+      Shirt: 55,
+      Jeans: 27,
+      Blouse: 75,
+      Suit: 33,
+      Dress: 99,
+      Shoes: 100,
+      Trouser: 122,
+      Sweater: 222,
     };
 
     const totalBasePrice = types.reduce(
       (sum, type) => sum + (basePrices[type] || 0),
       0
     );
-    const cleaningPrice = cleaningType === "Dry" ? 5 : 10;
+    const cleaningPrice = cleaningType === "Dry" ? 50 : 20;
 
     return totalBasePrice + cleaningPrice;
   };
@@ -87,10 +87,12 @@ const CustomerOrderForm: React.FC<CustomerOrderFormProps> = ({
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Place an Order</CardTitle>
+        <CardTitle className="text-xl sm:text-2xl font-bold">
+          Place an Order
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <Label htmlFor="orderTypes" className="text-sm font-medium">
               Order Types

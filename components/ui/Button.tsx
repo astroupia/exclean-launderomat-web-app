@@ -16,7 +16,7 @@ const Button: FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "px-4 py-2 rounded-lg text-white font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 transition";
+    "px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-white font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 transition text-sm sm:text-base";
   const variantStyles = {
     primary: "bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-500",
     outline:

@@ -67,31 +67,37 @@ const services: Service[] = [
   },
 ];
 
-// ServiceCard component renders a list of service cards
+// ServiceCard component renders a responsive grid of service cards
 export default function ServiceCard() {
   return (
-    <section className="bg-background py-12 md:py-20">
-      <div className="mx-20 container flex justify-center items-center flex-wrap gap-8">
-        {services.map((service, index) => (
-          <div
-            key={index}
-            className="rounded-lg bg-card p-6 shadow-sm transition-all hover:shadow-md w-full md:w-1/3"
-          >
-            <div className="flex items-center gap-4">
-              <div
-                className={`${service.iconBg} p-3 rounded-md ${service.iconText}`}
-              >
-                <service.icon className="h-6 w-6" />
+    <section className="bg-background py-8 sm:py-12 md:py-20">
+      {/* Responsive container with flexible padding */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Responsive grid layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          {services.map((service, index) => (
+            <div
+              key={index}
+              className="rounded-lg bg-card p-4 sm:p-6 shadow-sm transition-all hover:shadow-md"
+            >
+              {/* Flex container for icon and title */}
+              <div className="flex items-center gap-4 mb-4">
+                <div
+                  className={`${service.iconBg} p-2 sm:p-3 rounded-md ${service.iconText}`}
+                >
+                  <service.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                </div>
+                <h3 className="text-indigo-500 text-lg sm:text-xl font-semibold">
+                  {service.title}
+                </h3>
               </div>
-              <h3 className="text-indigo-500 text-xl font-semibold">
-                {service.title}
-              </h3>
+              {/* Service description */}
+              <p className="text-black text-sm sm:text-base text-muted-foreground">
+                {service.description}
+              </p>
             </div>
-            <p className="text-black mt-4 text-muted-foreground">
-              {service.description}
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

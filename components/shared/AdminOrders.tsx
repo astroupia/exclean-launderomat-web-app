@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
+import { CardHeader } from "@/components/ui/Card";
+import { CardTitle } from "@/components/ui/Card";
+import { CardContent } from "@/components/ui/Card";
 import {
   Table,
   TableHeader,
@@ -15,12 +18,11 @@ import { getAllOrders, updateOrder } from "@/lib/actions/order.action";
 interface Order {
   id: string;
   userId: string;
-  firstName: string; // Add this line
+  firstName: string;
   orderDateTime: string;
   type: string;
   status: string;
   price: number;
-  // Add other fields as necessary
 }
 
 const AdminOrders: React.FC = () => {
@@ -52,7 +54,9 @@ const AdminOrders: React.FC = () => {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full overflow-x-auto">
+      {" "}
+      {/* Add overflow-x-auto */}
       <CardHeader>
         <CardTitle>Orders</CardTitle>
       </CardHeader>
@@ -60,51 +64,57 @@ const AdminOrders: React.FC = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Date</TableHead>
-              {/* <TableHead>Time</TableHead> */}
-              <TableHead>Frequency</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Payment</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="px-2 py-1">ID</TableHead>{" "}
+              {/* Reduce padding */}
+              <TableHead className="px-2 py-1">Customer</TableHead>
+              <TableHead className="px-2 py-1">Date</TableHead>
+              <TableHead className="px-2 py-1">Type</TableHead>
+              <TableHead className="px-2 py-1">Status</TableHead>
+              <TableHead className="px-2 py-1">Payment</TableHead>
+              <TableHead className="px-2 py-1">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {orders.map((order) => (
               <TableRow key={order.id}>
-                <TableCell>{order.id}</TableCell>
-                <TableCell>{order.firstName}</TableCell>
-                <TableCell>
+                <TableCell className="px-2 py-1">
+                  {order.id.slice(-4)}
+                </TableCell>{" "}
+                {/* Show only last 4 characters */}
+                <TableCell className="px-2 py-1">{order.firstName}</TableCell>
+                <TableCell className="px-2 py-1">
                   {new Date(order.orderDateTime).toLocaleDateString()}
                 </TableCell>
-                {/* <TableCell>
-                  {new Date(order.orderDateTime).toLocaleTimeString()}
-                </TableCell> */}
-                <TableCell>{order.type}</TableCell>
-                <TableCell>
+                <TableCell className="px-2 py-1">{order.type}</TableCell>
+                <TableCell className="px-2 py-1">
                   <Badge
                     variant={order.status === "Pending" ? "warning" : "success"}
                   >
                     {order.status}
                   </Badge>
                 </TableCell>
-                <TableCell>
-                  <Badge variant="info">{order.price}</Badge>
+                <TableCell className="px-2 py-1">
+                  <Badge variant="info">{order.price}.00</Badge>
                 </TableCell>
-                <TableCell>
-                  <Button
-                    onClick={() => handleStatusUpdate(order.id, "In Progress")}
-                    disabled={order.status !== "Pending"}
-                  >
-                    Start
-                  </Button>
-                  <Button
-                    onClick={() => handleStatusUpdate(order.id, "Completed")}
-                    disabled={order.status !== "In Progress"}
-                  >
-                    Complete
-                  </Button>
+                <TableCell className="px-2 py-1">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      onClick={() =>
+                        handleStatusUpdate(order.id, "In Progress")
+                      }
+                      disabled={order.status !== "In Progress"}
+                      className="text-xs px-2 py-1"
+                    >
+                      Start
+                    </Button>
+                    <Button
+                      onClick={() => handleStatusUpdate(order.id, "Completed")}
+                      disabled={order.status !== "Completed"}
+                      className="text-xs px-2 py-1"
+                    >
+                      Complete
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

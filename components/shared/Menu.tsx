@@ -1,8 +1,8 @@
 "use client";
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 
 const transition = {
   type: "spring",
@@ -20,49 +20,62 @@ interface MenuItemsProps {
   children?: React.ReactNode;
 }
 
-/**
- * MenuItems component for individual menu items
- * @param {MenuItemsProps} props - The props for the menu items
- * @returns {JSX.Element} A menu item with potential dropdown
- */
 export const MenuItems: React.FC<MenuItemsProps> = ({
   setActive,
   active,
   item,
   children,
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setActive("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [setActive]);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+    setActive(isOpen ? "" : item);
+  };
+
   return (
-    <div onMouseEnter={() => setActive(item)} className="relative ">
+    <div ref={menuRef} className="relative">
       <motion.p
-        transition={{ duration: 0.3 }}
-        className="cursor-pointe hover:opacity-[0.9] text-indigo-500"
+        onClick={handleToggle}
+        className="cursor-pointer hover:opacity-[0.9] text-indigo-500"
       >
         {item}
       </motion.p>
-      {active !== null && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.85, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={transition}
-        >
-          {active === item && (
-            <div className="absolute top-[calc(100%_+_1.2rem)] left-1/2 transform -translate-x-1/2 pt-4">
-              <motion.div
-                transition={transition}
-                layoutId="active" // layoutId ensures smooth animation
-                className="bg-white dark:bg-black backdrop-blur-sm rounded-2xl overflow-hidden border border-black/[0.2] dark:border-white/[0.2] shadow-xl"
-              >
-                <motion.div
-                  layout // layout ensures smooth animation
-                  className="w-max h-full p-4"
-                >
-                  {children}
-                </motion.div>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={transition}
+            className="absolute z-50 left-1/2 transform -translate-x-1/2 pt-2 w-screen sm:w-auto"
+          >
+            <motion.div
+              layoutId="active"
+              className="bg-white dark:bg-black backdrop-blur-sm rounded-lg overflow-hidden border border-black/[0.2] dark:border-white/[0.2] shadow-xl max-w-[90vw] sm:max-w-none mx-auto"
+            >
+              <motion.div layout className="w-full h-full p-4">
+                {children}
               </motion.div>
-            </div>
-          )}
-        </motion.div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -72,18 +85,9 @@ interface MenuProps {
   children: React.ReactNode;
 }
 
-/**
- * Menu component for navigation
- * @param {MenuProps} props - The props for the menu
- * @returns {JSX.Element} A navigation menu
- */
 export const Menu: React.FC<MenuProps> = ({ setActive, children }) => {
   return (
-    <nav
-      onMouseLeave={() => setActive(null)} // resets the state
-      className="relative  border border-transparent bg-white shadow-input flex justify-center space-x-4 px-8 py-6
-"
-    >
+    <nav className="relative border border-transparent bg-white shadow-input flex justify-center space-x-4 px-4 py-3 sm:px-8 sm:py-6">
       {children}
     </nav>
   );
@@ -93,7 +97,7 @@ interface ProductItemProps {
   title: string;
   description: string;
   href: string;
-  src: string;
+  src: StaticImageData;
 }
 
 /**
@@ -109,13 +113,6 @@ export const ProductItem: React.FC<ProductItemProps> = ({
 }) => {
   return (
     <Link href={href} className="flex space-x-2">
-      <Image
-        src={src}
-        width={140}
-        height={70}
-        alt={title}
-        className="flex-shrink-0 rounded-md shadow-2xl"
-      />
       <div>
         <h4 className="text-xl font-bold mb-1 text-black dark:text-indigo">
           {title}
