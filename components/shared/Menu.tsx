@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 
 const transition = {
   type: "spring",
@@ -97,7 +97,7 @@ interface ProductItemProps {
   title: string;
   description: string;
   href: string;
-  src: string;
+  src: StaticImageData;
 }
 
 /**
@@ -113,13 +113,6 @@ export const ProductItem: React.FC<ProductItemProps> = ({
 }) => {
   return (
     <Link href={href} className="flex space-x-2">
-      <Image
-        src={src}
-        width={140}
-        height={70}
-        alt={title}
-        className="flex-shrink-0 rounded-md shadow-2xl"
-      />
       <div>
         <h4 className="text-xl font-bold mb-1 text-black dark:text-indigo">
           {title}

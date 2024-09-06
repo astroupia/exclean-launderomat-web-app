@@ -4,7 +4,8 @@ import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import React, { useState } from "react";
 import { MenuItems, Menu, ProductItem } from "@/components/shared/Menu";
 import Link from "next/link";
-import Button from "./Button";
+import Button from "@/components/ui/Button";
+import { Service, Contact, Dashboard } from "@/public/assets/icons";
 
 const Nav: React.FC = () => {
   const [active, setActive] = useState<string | null>(null);
@@ -18,33 +19,18 @@ const Nav: React.FC = () => {
           </Link>
           <Menu setActive={setActive}>
             <SignedIn>
-              <MenuItems item="Dashboard" setActive={setActive} active={active}>
-                <ProductItem
-                  title="Welcome to Your Dashboard"
-                  description="This is the homepage."
-                  href="/dashboard"
-                  src="/images/home.png"
-                />
-              </MenuItems>
+              <Link href="/dashboard">
+                <h1 className="text-l text-indigo-700">Dashboard</h1>
+              </Link>
             </SignedIn>
             <SignedOut>
-              <MenuItems item="Services" setActive={setActive} active={active}>
-                <ProductItem
-                  title="Our Services"
-                  description="Explore the services we offer."
-                  href="#services"
-                  src="/images/services.png"
-                />
-              </MenuItems>
+              <Link href="#service">
+                <h1 className="text-l text-indigo-700">Service</h1>
+              </Link>
             </SignedOut>
-            <MenuItems item="Contact" setActive={setActive} active={active}>
-              <ProductItem
-                title="Get in Touch"
-                description="Contact us for more information."
-                href="#contact"
-                src="/images/contact.png"
-              />
-            </MenuItems>
+            <Link href="#contact">
+              <h1 className="text-l text-indigo-700">Contact</h1>
+            </Link>
           </Menu>
           <SignedIn>
             <UserButton />
