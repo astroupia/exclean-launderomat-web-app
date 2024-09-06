@@ -12,7 +12,7 @@ import {
   getUserById,
   getUserByEmail,
 } from "@/lib/actions/user.action";
-import { useAuth, useUser } from "@clerk/nextjs"; // Clerk's authentication
+import { useAuth, useUser } from "@clerk/nextjs";
 import { createOrder, getUserOrders } from "@/lib/actions/order.action";
 import CustomerOrderForm from "@/components/shared/CustomerOrderForm";
 import AdminOrders from "@/components/shared/AdminOrders";
@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
   const { user } = useUser();
   const email = user?.emailAddresses[0].emailAddress;
 
-  const [view, setView] = useState<"customer" | "admin">("customer");
+  const [view, setView] = useState<"customer" | "admin">("admin");
   const [selectedBar, setSelectedBar] = useState<string>("Order");
   const [orders, setOrders] = useState<CreateOrderParams[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
     const fetchUserRole = async () => {
       if (userId) {
         const role = await getUserRole(userId);
-        setView(role === "admin" ? "admin" : "customer");
+        setView(role === "admin" ? "admin" : "admin");
       }
     };
 
@@ -137,13 +137,14 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <>
-      <h1 className="word text-indigo-600 font-bold text-2xl">
+    <div className="p-4 max-w-7xl mx-auto">
+      <h1 className="word text-indigo-600 font-bold text-xl sm:text-2xl mb-4">
         {userName}'s Dashboard
       </h1>
-      <section className={`bg-black section`}>
-        <div className="flex">
-          <div className="button">
+      <section className="bg-black section sm:flex-row">
+        <div className="flex flex-col sm:flex-row">
+          {/* Sidebar buttons - horizontal on mobile, vertical on larger screens */}
+          <div className="button flex flex-row sm:flex-col mb-4 sm:mb-0 sm:w-1/4">
             {(view === "customer" ? customerButtons : adminButtons).map(
               (side, index) => (
                 <SideButton
@@ -158,13 +159,14 @@ const Dashboard: React.FC = () => {
               )
             )}
           </div>
-          <div className="dashboard mx-8 p-4">
+          {/* Main content area */}
+          <div className="dashboard mx-2 sm:p-4 w-full sm:w-3/4">
             {selectedBar === "Order" && view === "customer" && (
-              <div className="w-full flex flex-col md:flex-row gap-4">
-                <div className="w-full md:w-1/2">
+              <div className="w-full flex sm:flex-col p-2 lg:flex-row gap-4">
+                <div className="w-full lg:w-1/2">
                   <CustomerOrderForm handleOrderRequest={handleOrderRequest} />
                 </div>
-                {/* <div className="w-full md:w-1/2">
+                <div className="w-full lg:w-1/2 mt-4 lg:mt-0">
                   {userOrders.length > 0 ? (
                     <CustomerOrderPreview
                       order={{
@@ -192,9 +194,11 @@ const Dashboard: React.FC = () => {
                       onViewDetails={() => handleViewDetails(userOrders[0]._id)}
                     />
                   ) : (
-                    <p>No orders available</p>
+                    <p className="text-center text-gray-500">
+                      No orders available
+                    </p>
                   )}
-                </div> */}
+                </div>
               </div>
             )}
             {selectedBar === "Payment" && view === "customer" && (
@@ -208,7 +212,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 
