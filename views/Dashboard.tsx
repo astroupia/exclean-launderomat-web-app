@@ -19,6 +19,8 @@ import AdminOrders from "@/components/shared/AdminOrders";
 import AdminInventory from "@/components/shared/AdminInventory";
 import AdminPayments from "@/components/shared/AdminPayments";
 import CustomerOrderPreview from "@/components/shared/CustomerOrderPreview";
+import CustomerPaymentForm from "@/components/shared/CustomerPaymentForm";
+import { uploadPayment } from "@/lib/actions/payment.action";
 
 // Array of side button data for customers
 const customerButtons: SideButtonProps[] = [
@@ -56,7 +58,6 @@ const adminButtons: SideButtonProps[] = [
 const Dashboard: React.FC = () => {
   const { isLoaded, userId } = useAuth();
   const { user } = useUser();
-  const email = user?.emailAddresses[0].emailAddress;
 
   const [view, setView] = useState<"customer" | "admin">("admin");
   const [selectedBar, setSelectedBar] = useState<string>("Order");
@@ -75,7 +76,8 @@ const Dashboard: React.FC = () => {
     const fetchUserRole = async () => {
       if (userId) {
         const role = await getUserRole(userId);
-        setView(role === "admin" ? "admin" : "admin");
+        setUserRole(role);
+        setView(role === "admin" ? "admin" : "customer");
       }
     };
 
@@ -136,6 +138,25 @@ const Dashboard: React.FC = () => {
     // You might want to navigate to a details page or open a modal here
   };
 
+  const handlePaymentUpload = async (paymentData: any) => {
+    try {
+      const result = await uploadPayment(paymentData);
+      if (result.success) {
+        alert("Payment uploaded successfully!");
+        // Optionally, you can update the local state or refetch payment history here
+      } else {
+        throw new Error(result.message || "Failed to upload payment");
+      }
+    } catch (error) {
+      console.error("Failed to upload payment:", error);
+      alert(
+        `Failed to upload payment: ${
+          error instanceof Error ? error.message : "An unknown error occurred"
+        }`
+      );
+    }
+  };
+
   return (
     <div className="p-4 max-w-7xl mx-auto">
       <h1 className="word text-indigo-600 font-bold text-xl sm:text-2xl mb-4">
@@ -166,33 +187,9 @@ const Dashboard: React.FC = () => {
                 <div className="w-full lg:w-1/2">
                   <CustomerOrderForm handleOrderRequest={handleOrderRequest} />
                 </div>
-                <div className="w-full lg:w-1/2 mt-4 lg:mt-0">
+                <div className="w-full lg:w-1/2 lg:mt-0">
                   {userOrders.length > 0 ? (
-                    <CustomerOrderPreview
-                      order={{
-                        id: userOrders[0]._id,
-                        orderDateTime: new Date(userOrders[0].orderDateTime),
-                        status: validateOrderStatus(userOrders[0].status) as
-                          | "Pending"
-                          | "In Progress"
-                          | "Completed"
-                          | "Cancelled",
-                        type: Array.isArray(userOrders[0].type)
-                          ? userOrders[0].type[0]
-                          : (userOrders[0].type as
-                              | "Dry"
-                              | "Wet"
-                              | "Steam"
-                              | "Other"),
-                        cleaningType: userOrders[0].cleaningType as
-                          | "Dry"
-                          | "Wet"
-                          | "Steam"
-                          | "Other",
-                        price: userOrders[0].price,
-                      }}
-                      onViewDetails={() => handleViewDetails(userOrders[0]._id)}
-                    />
+                    <CustomerOrderPreview />
                   ) : (
                     <p className="text-center text-gray-500">
                       No orders available
@@ -202,7 +199,21 @@ const Dashboard: React.FC = () => {
               </div>
             )}
             {selectedBar === "Payment" && view === "customer" && (
-              <h1 className="text-indigo-600">Customer Payment</h1>
+              <div className="w-full flex sm:flex-col p-2 lg:flex-row gap-4">
+                <div className="w-full lg:w-1/2">
+                  <CustomerPaymentForm
+                    handlePaymentUpload={handlePaymentUpload}
+                  />
+                </div>
+                <div className="w-full lg:w-1/2 lg:mt-0">
+                  <h2 className="text-lg font-semibold mb-2">
+                    Payment History
+                  </h2>
+                  <p className="text-gray-500">
+                    Your payment history will appear here.
+                  </p>
+                </div>
+              </div>
             )}
             {selectedBar === "Order" && view === "admin" && <AdminOrders />}
             {selectedBar === "Payment" && view === "admin" && <AdminPayments />}

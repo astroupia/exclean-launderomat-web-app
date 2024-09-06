@@ -14,7 +14,7 @@
 .dashboard {
   margin-left: 150px;
   min-height: 200px;
-  min-width: 1000px;
+  max-width: 1200px;
 }
 
 .word {
