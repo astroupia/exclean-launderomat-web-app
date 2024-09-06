@@ -1,160 +1,113 @@
 "use server";
-import Order from "@/models/order"; // Assume you have defined these models
+import Order from "@/models/order";
 import User from "@/models/user";
 import { connectToDatabase } from "@/utils/database";
-import {
-  CreateOrderParams,
-  GetOrderParams,
-  UpdateOrderParams,
-  GetUserOrdersParams,
-  OrderType,
-} from "@/types";
+import { CreateOrderParams, GetOrderParams, UpdateOrderParams } from "@/types";
 
-// Create Order
-export async function createOrder(
-  params: CreateOrderParams
-): Promise<typeof Order> {
-  try {
-    // Ensure database connection
-    await connectToDatabase();
-
-    // Find the user
-    const user = await User.findOne({ clerkId: params.userId });
-    if (!user) {
-      throw new Error(`User not found for clerkId: ${params.userId}`);
-    }
-
-    // Create and save the order
-    const newOrder = new Order({
-      ...params.order,
-      owner: user._id, // Set the owner field to the user's _id
-      userId: user._id,
-      orderDateTime: new Date(),
-    });
-
-    const savedOrder = await newOrder.save();
-
-    return savedOrder.toObject();
-  } catch (error) {
-    console.error("Error creating order:", error);
-    throw new Error(`Failed to create order: ${(error as Error).message}`);
-  }
+// Creates a new order
+export async function createOrder(params: CreateOrderParams) {
+  await connectToDatabase();
+  const user = await User.findOne({ clerkId: params.userId });
+  if (!user) throw new Error(`User not found for clerkId: ${params.userId}`);
+  const newOrder = new Order({
+    ...params.order,
+    owner: user._id,
+    userId: user._id,
+    orderDateTime: new Date(),
+  });
+  return (await newOrder.save()).toObject();
 }
 
-// Get Order by ID
+// Retrieves an order by its ID
 export async function getOrderById({ id }: GetOrderParams) {
-  try {
-    await connectToDatabase();
-    const order = await Order.findById(id);
-    if (!order) {
-      throw new Error("Order not found");
-    }
-    return order.toObject();
-  } catch (error) {
-    console.error("Error getting order:", error);
-    throw new Error("Failed to get order");
-  }
+  await connectToDatabase();
+  const order = await Order.findById(id);
+  if (!order) throw new Error("Order not found");
+  return order.toObject();
 }
 
-// Update Order
+// Updates an existing order
 export async function updateOrder(id: string, params: UpdateOrderParams) {
-  try {
-    await connectToDatabase();
-    const updatedOrder = await Order.findByIdAndUpdate(id, params, {
-      new: true,
-    });
-    if (!updatedOrder) {
-      throw new Error("Order not found");
-    }
-    return updatedOrder.toObject();
-  } catch (error) {
-    console.error("Error updating order:", error);
-    throw new Error("Failed to update order");
-  }
+  await connectToDatabase();
+  const updatedOrder = await Order.findByIdAndUpdate(id, params, { new: true });
+  if (!updatedOrder) throw new Error("Order not found");
+  return updatedOrder.toObject();
 }
 
-// Delete Order
+// Deletes an order
 export async function deleteOrder(id: string) {
-  try {
-    await connectToDatabase();
-    const deletedOrder = await Order.findByIdAndDelete(id);
-    if (!deletedOrder) {
-      throw new Error("Order not found");
-    }
-    return deletedOrder.toObject();
-  } catch (error) {
-    console.error("Error deleting order:", error);
-    throw new Error("Failed to delete order");
-  }
+  await connectToDatabase();
+  const deletedOrder = await Order.findByIdAndDelete(id);
+  if (!deletedOrder) throw new Error("Order not found");
+  return deletedOrder.toObject();
 }
 
-// Get User Orders
-export async function getUserOrders(userId: string) {
-  try {
-    connectToDatabase();
+// Retrieves all orders for a user
+export async function getUserOrders(clerkId: string) {
+  await connectToDatabase();
 
-    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+  // Find the user by clerkId
+  const user = await User.findOne({ clerkId });
+  if (!user) throw new Error(`User not found for clerkId: ${clerkId}`);
 
-    const userOrders = orders.map((order) => ({
-      _id: order._id.toString(),
-      orderDateTime: order.orderDateTime,
-      status: order.status,
-      type: order.type,
-      cleaningType: order.cleaningType,
-      price: order.price,
-      // Add other necessary fields
-    }));
+  // Find orders using the user's _id
+  const orders = await Order.find({ owner: user._id }).sort({ createdAt: -1 });
 
-    return userOrders;
-  } catch (error) {
-    console.error("Error getting user orders:", error);
-    throw new Error("Failed to get user orders");
-  }
+  return orders.map((order) => ({
+    ...order.toObject(),
+    _id: order._id.toString(),
+    owner: order.owner.toString(),
+    orderDateTime: order.orderDateTime.toISOString(),
+  }));
 }
 
-// Get All Orders
-export async function getAllOrders(): Promise<(typeof Order)[]> {
-  try {
-    await connectToDatabase();
-    const orders = await Order.find();
-    return orders.map((order) => order.toObject());
-  } catch (error) {
-    console.error("Error getting all orders:", error);
-    throw new Error("Failed to get all orders");
-  }
+// Retrieves all orders
+export async function getAllOrders() {
+  await connectToDatabase();
+  const orders = await Order.find().populate(
+    "owner",
+    "firstName lastName email"
+  );
+  return orders.map((order) => ({
+    _id: order._id.toString(),
+    id: order.id,
+    orderDateTime: order.orderDateTime.toISOString(),
+    status: order.status,
+    type: order.type,
+    cleaningType: order.cleaningType,
+    price: order.price,
+    owner: order.owner
+      ? {
+          _id: order.owner._id.toString(),
+          name: order.owner.firstName + " " + order.owner.lastName,
+          email: order.owner.email,
+        }
+      : null,
+  }));
 }
 
-// Get Orders by Clerk ID
-export async function getOrders(clerkId: string): Promise<(typeof Order)[]> {
-  try {
-    await connectToDatabase();
-    const user = await User.findOne({ clerkId });
-    if (!user) {
-      throw new Error(`User not found for clerkId: ${clerkId}`);
-    }
-    const orders = await Order.find({ userId: user._id });
-    return orders.map((order) => order.toObject());
-  } catch (error) {
-    console.error("Error getting orders:", error);
-    throw new Error("Failed to get orders");
-  }
+// Retrieves orders by Clerk ID
+export async function getOrders(clerkId: string) {
+  await connectToDatabase();
+  const user = await User.findOne({ clerkId });
+  if (!user) throw new Error(`User not found for clerkId: ${clerkId}`);
+  const orders = await Order.find({ userId: user._id });
+  return orders.map((order) => order.toObject());
 }
 
-// Update Order Status
+// Updates the status of an order
 export async function updateOrderStatus(
   orderId: string,
   newStatus: string
-): Promise<typeof Order | null> {
-  try {
-    await connectToDatabase();
-    const updatedOrder = await Order.findByIdAndUpdate(
-      orderId,
-      { status: newStatus },
-      { new: true }
-    );
-    return updatedOrder ? updatedOrder.toObject() : null;
-  } catch (error) {
-    console.error("Error updating order status:", error);
-    throw new Error("Failed to update order status");
-  }
+): Promise<{ status: string } | null> {
+  await connectToDatabase();
+  const updatedOrder = await Order.findByIdAndUpdate(
+    orderId,
+    { status: newStatus },
+    { new: true, lean: true }
+  )
+    .lean<{ status: string } | null>()
+    .exec();
+
+  return updatedOrder ? { status: updatedOrder.status } : null;
 }
