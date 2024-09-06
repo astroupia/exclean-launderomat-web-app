@@ -63,7 +63,9 @@ export async function deletePaymentById(
   return { message: "Payment deleted successfully" };
 }
 
-export async function uploadPayment(payment: PaymentParam): Promise<Payment> {
+export async function uploadPayment(
+  payment: PaymentParam
+): Promise<PaymentParam> {
   await connectToDatabase();
   const newPayment = new Payment(payment);
   const savedPayment = await newPayment.save();
