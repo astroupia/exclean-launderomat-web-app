@@ -59,7 +59,7 @@ const Dashboard: React.FC = () => {
   const { isLoaded, userId } = useAuth();
   const { user } = useUser();
 
-  const [view, setView] = useState<"customer" | "admin">("admin");
+  const [view, setView] = useState<"customer" | "admin">("customer");
   const [selectedBar, setSelectedBar] = useState<string>("Order");
   const [orders, setOrders] = useState<CreateOrderParams[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
