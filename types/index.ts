@@ -27,6 +27,16 @@ export type PaymentParam = {
   bankStatementUrl: string;
 };
 
+export type Payment = {
+  id: string;
+  orderId: string;
+  customer: string;
+  amount: number;
+  method: string;
+  status: "Pending" | "Approved" | "Rejected";
+  bankStatementUrl: string;
+};
+
 export type ItemParams = {
   type: string;
   fabric: string;
