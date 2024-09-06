@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import {
@@ -10,23 +10,38 @@ import {
   TableCell,
 } from "@/components/ui/Table";
 import Button from "@/components/ui/Button";
+import { getUserOrders } from "@/lib/actions/order.action";
+import { useUser } from "@clerk/nextjs";
 
-interface CustomerOrderPreviewProps {
-  order?: {
-    id: string;
-    orderDateTime: Date;
-    status: "Pending" | "In Progress" | "Completed" | "Cancelled";
-    type: string;
-    cleaningType: string;
-    price: number;
-  };
-  onViewDetails: (orderId: string) => void;
+interface Order {
+  _id: string;
+  orderDateTime: string;
+  status: "Pending" | "In Progress" | "Completed" | "Cancelled";
+  type: string;
+  cleaningType: string;
+  price: number;
 }
 
-const CustomerOrderPreview: React.FC<CustomerOrderPreviewProps> = ({
-  order,
-  onViewDetails,
-}) => {
+const CustomerOrderPreview: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const { user } = useUser();
+
+  useEffect(() => {
+    if (user) {
+      fetchOrders();
+    }
+  }, [user]);
+
+  const fetchOrders = async () => {
+    try {
+      const userOrders = await getUserOrders(user!.id);
+      console.log("Fetched orders:", userOrders); // Add this line for debugging
+      setOrders(userOrders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+
   const getBadgeVariant = (status: string) => {
     switch (status) {
       case "Pending":
@@ -42,58 +57,53 @@ const CustomerOrderPreview: React.FC<CustomerOrderPreviewProps> = ({
     }
   };
 
-  if (!order) {
+  const handleViewDetails = (orderId: string) => {
+    // Implement view details functionality
+    console.log("View details for order:", orderId);
+  };
+
+  if (orders.length === 0) {
     return (
       <Card className="mb-4">
-        <CardContent>No order data available</CardContent>
+        <CardContent>No orders available</CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="mb-4">
-      <CardHeader className="text-xl sm:text-2xl">Order Preview</CardHeader>
+    <Card>
+      <CardHeader className="text-xl sm:text-2xl">Recent Orders</CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          {" "}
-          {/* Add horizontal scroll for small screens */}
           <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Status</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Price</TableHead>
+              </TableRow>
+            </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableHead className="w-1/3">Order ID</TableHead>
-                <TableCell>{order.id}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableHead className="w-1/3">Date</TableHead>
-                <TableCell>
-                  {order.orderDateTime.toLocaleDateString()}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableHead className="w-1/3">Status</TableHead>
-                <TableCell>
-                  <Badge variant={getBadgeVariant(order.status)}>
-                    {order.status}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableHead className="w-1/3">Type</TableHead>
-                <TableCell>{order.type}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableHead className="w-1/3">Cleaning Type</TableHead>
-                <TableCell>{order.cleaningType}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableHead className="w-1/3">Price</TableHead>
-                <TableCell>${order.price.toFixed(2)}</TableCell>
-              </TableRow>
+              {orders.map((order) => (
+                <TableRow key={order._id}>
+                  <TableCell>
+                    <Badge variant={getBadgeVariant(order.status)}>
+                      {order.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {Array.isArray(order.type)
+                      ? order.type.join(", ")
+                      : typeof order.type === "string"
+                      ? order.type
+                      : String(order.type)}
+                  </TableCell>
+
+                  <TableCell>${order.price.toFixed(2)}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
-        </div>
-        <div className="mt-4 text-right">
-          <Button onClick={() => onViewDetails(order.id)}>View Details</Button>
         </div>
       </CardContent>
     </Card>
