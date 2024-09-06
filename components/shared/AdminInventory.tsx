@@ -90,9 +90,8 @@ function AdminInventory() {
                     product.quantity
                   )}
                 </TableCell>
-                <TableCell className="text-indigo-600">
-                  ${product.unitPrice}
-                </TableCell>
+                <TableCell>{product.unitPrice}</TableCell>
+
                 <TableCell>
                   {editingId === product.id ? (
                     <>

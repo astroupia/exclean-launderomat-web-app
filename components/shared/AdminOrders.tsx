@@ -16,13 +16,16 @@ import Button from "@/components/ui/Button";
 import { getAllOrders, updateOrder } from "@/lib/actions/order.action";
 
 interface Order {
+  _id: string; // Add this line
   id: string;
-  userId: string;
-  firstName: string;
   orderDateTime: string;
   type: string;
   status: string;
   price: number;
+  owner?: {
+    name: string;
+    email: string;
+  };
 }
 
 const AdminOrders: React.FC = () => {
@@ -35,6 +38,7 @@ const AdminOrders: React.FC = () => {
   const fetchOrders = async () => {
     try {
       const allOrders = await getAllOrders();
+      console.log("Fetched orders:", allOrders); // Add this line for debugging
       setOrders(allOrders as unknown as Order[]);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -47,9 +51,26 @@ const AdminOrders: React.FC = () => {
   ) => {
     try {
       await updateOrder(orderId, { status: newStatus });
-      fetchOrders(); // Refresh the orders after update
+      await fetchOrders(); // Refresh the orders after update
     } catch (error) {
       console.error("Error updating order status:", error);
+    }
+  };
+
+  const getBadgeVariant = (
+    status: string
+  ): "destructive" | "success" | "warning" | "info" => {
+    switch (status) {
+      case "Pending":
+        return "warning";
+      case "In Progress":
+        return "info";
+      case "Completed":
+        return "success";
+      case "Cancelled":
+        return "destructive";
+      default:
+        return "info";
     }
   };
 
@@ -64,7 +85,7 @@ const AdminOrders: React.FC = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="px-2 py-1">ID</TableHead>{" "}
+              {/* <TableHead className="px-2 py-1">ID</TableHead>{" "} */}
               {/* Reduce padding */}
               <TableHead className="px-2 py-1">Customer</TableHead>
               <TableHead className="px-2 py-1">Date</TableHead>
@@ -76,20 +97,22 @@ const AdminOrders: React.FC = () => {
           </TableHeader>
           <TableBody>
             {orders.map((order) => (
-              <TableRow key={order.id}>
+              <TableRow key={order._id}>
                 <TableCell className="px-2 py-1">
-                  {order.id.slice(-4)}
-                </TableCell>{" "}
-                {/* Show only last 4 characters */}
-                <TableCell className="px-2 py-1">{order.firstName}</TableCell>
+                  {order.owner?.name || "N/A"}
+                </TableCell>
                 <TableCell className="px-2 py-1">
                   {new Date(order.orderDateTime).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="px-2 py-1">{order.type}</TableCell>
                 <TableCell className="px-2 py-1">
-                  <Badge
-                    variant={order.status === "Pending" ? "warning" : "success"}
-                  >
+                  {Array.isArray(order.type)
+                    ? order.type.join(", ")
+                    : typeof order.type === "string"
+                    ? order.type
+                    : String(order.type)}
+                </TableCell>
+                <TableCell className="px-2 py-1">
+                  <Badge variant={getBadgeVariant(order.status)}>
                     {order.status}
                   </Badge>
                 </TableCell>
@@ -100,16 +123,16 @@ const AdminOrders: React.FC = () => {
                   <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       onClick={() =>
-                        handleStatusUpdate(order.id, "In Progress")
+                        handleStatusUpdate(order._id, "In Progress")
                       }
-                      disabled={order.status !== "In Progress"}
+                      disabled={order.status !== "Pending"}
                       className="text-xs px-2 py-1"
                     >
                       Start
                     </Button>
                     <Button
-                      onClick={() => handleStatusUpdate(order.id, "Completed")}
-                      disabled={order.status !== "Completed"}
+                      onClick={() => handleStatusUpdate(order._id, "Completed")}
+                      disabled={order.status !== "In Progress"}
                       className="text-xs px-2 py-1"
                     >
                       Complete

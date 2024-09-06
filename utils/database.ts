@@ -2,26 +2,22 @@ import mongoose from "mongoose";
 
 let isConnected: boolean = false;
 
+// Connects to the MongoDB database
 export const connectToDatabase = async () => {
-  if (isConnected) {
-    console.log("Using existing database connection");
-    return;
-  }
+  if (isConnected) return;
 
   const dbUrl = process.env.MONGODB_URL;
-  const dbName = "exclean"; // Hardcode the database name
+  const dbName = "exclean";
 
-  if (!dbUrl) {
+  if (!dbUrl)
     throw new Error("MongoDB URL is not defined in environment variables");
-  }
 
   try {
     const db = await mongoose.connect(dbUrl, { dbName });
     isConnected = true;
-    console.log(`Connected to database: ${db.connection.name}`);
   } catch (error) {
     console.error("Error connecting to database:", error);
-    throw error; // Re-throw the error for better error handling
+    throw error;
   }
 };
 
