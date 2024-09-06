@@ -6,7 +6,7 @@ import LaundaryFive from "./Laundary Five.jpg";
 import LaundarySix from "./Laundary Six.jpg";
 import LaundarySeven from "./Laundary Seven.jpg";
 import LaundaryEight from "./Laundary Eight.jpg";
-import LaundaryNine from "./Laundary Nine.jpg";
+import LaundaryNine from "./Laundary NIne.jpg";
 import LaundaryTen from "./Laundary Ten.jpg";
 import LaundaryEleven from "./Laundary Eleven.jpg";
 import LaundaryTwelve from "./Laundary Twelve.jpg";
