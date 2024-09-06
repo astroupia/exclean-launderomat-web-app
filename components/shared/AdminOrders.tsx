@@ -57,6 +57,23 @@ const AdminOrders: React.FC = () => {
     }
   };
 
+  const getBadgeVariant = (
+    status: string
+  ): "destructive" | "success" | "warning" | "info" => {
+    switch (status) {
+      case "Pending":
+        return "warning";
+      case "In Progress":
+        return "info";
+      case "Completed":
+        return "success";
+      case "Cancelled":
+        return "destructive";
+      default:
+        return "info";
+    }
+  };
+
   return (
     <Card className="w-full overflow-x-auto">
       {" "}
@@ -95,9 +112,7 @@ const AdminOrders: React.FC = () => {
                     : String(order.type)}
                 </TableCell>
                 <TableCell className="px-2 py-1">
-                  <Badge
-                    variant={order.status === "Pending" ? "warning" : "success"}
-                  >
+                  <Badge variant={getBadgeVariant(order.status)}>
                     {order.status}
                   </Badge>
                 </TableCell>
