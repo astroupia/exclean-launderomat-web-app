@@ -5,9 +5,11 @@ import { Label } from "@/components/ui/Label";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
+import { UploadDropzone } from "@/utils/uploadthing";
+import { OurFileRouter } from "@/app/api/uploadthing/core"; // Make sure this path is correct
 
 interface CustomerPaymentFormProps {
-  handlePaymentUpload: (payment: PaymentParam) => void;
+  handlePaymentUpload: (payment: PaymentParam, file: File) => void;
 }
 
 const CustomerPaymentForm: React.FC<CustomerPaymentFormProps> = ({
@@ -15,25 +17,28 @@ const CustomerPaymentForm: React.FC<CustomerPaymentFormProps> = ({
 }) => {
   const [method, setMethod] = useState<string>("Credit Card");
   const [amount, setAmount] = useState<number>(0);
+  const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!file) {
+      alert("Please upload an image of your payment");
+      return;
+    }
     const payment: PaymentParam = {
-      id: Date.now().toString(), // Convert to string
+      id: Date.now().toString(),
       customer: "John Doe", // Replace with dynamic customer data in real scenarios
       amount,
       method,
       orderId: "", // Add a placeholder for orderId
-      bankStatementUrl: "", // Add a placeholder for bankStatementUrl
+      bankStatementUrl: "", // This will be replaced by the uploaded image URL
       status: "Pending",
     };
-    handlePaymentUpload(payment);
+    handlePaymentUpload(payment, file);
   };
 
   return (
     <Card className="w-full max-w-md mx-auto">
-      {" "}
-      {/* Center the card on larger screens */}
       <CardHeader>
         <CardTitle className="text-xl sm:text-2xl">Upload Payment</CardTitle>
       </CardHeader>
@@ -45,8 +50,8 @@ const CustomerPaymentForm: React.FC<CustomerPaymentFormProps> = ({
             </Label>
             <Select
               items={[
-                { value: "Credit Card", label: "Credit Card" },
-                { value: "PayPal", label: "PayPal" },
+                { value: "CBE Birr", label: "CBE Birr" },
+                { value: "Tele Birr", label: "Tele Birr" },
                 { value: "Bank Transfer", label: "Bank Transfer" },
               ]}
               onChange={(value) => setMethod(value)}
@@ -66,7 +71,25 @@ const CustomerPaymentForm: React.FC<CustomerPaymentFormProps> = ({
               className="w-full"
             />
           </div>
-          <Button type="submit" className="w-full">
+          <div>
+            <Label className="text-sm font-medium">Upload Payment Image</Label>
+            <UploadDropzone
+              endpoint="imageUploader"
+              onClientUploadComplete={(res) => {
+                if (res && res.length > 0) {
+                  // Assuming res[0].url contains the uploaded file URL, and res[0].name is available
+                  setFile(
+                    new File([res[0].url], res[0].name, { type: "image.png" }) // Replace with appropriate file type if known
+                  );
+                  alert("Upload Completed");
+                }
+              }}
+              onUploadError={(error: Error) => {
+                alert(`ERROR! ${error.message}`);
+              }}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={!file}>
             Upload Payment
           </Button>
         </form>

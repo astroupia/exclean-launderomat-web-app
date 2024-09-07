@@ -14,6 +14,7 @@
     "@clerk/nextjs": "^5.3.3",
     "@react-three/drei": "^9.111.2",
     "@react-three/fiber": "^8.17.5",
+    "@uploadthing/react": "^6.7.2",
     "@vercel/speed-insights": "^1.0.12",
     "autoprefixer": "^10.4.20",
     "dotenv": "^16.4.5",
@@ -28,6 +29,7 @@
     "react-icon": "^1.0.0",
     "sharp": "^0.33.5",
     "svix": "^1.30.0",
+    "uploadthing": "^6.13.2",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
