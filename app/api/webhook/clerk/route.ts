@@ -112,14 +112,36 @@ export async function POST(req: Request) {
     };
 
     try {
+      console.log("Connecting to database...");
+      await connectToDatabase();
+      console.log("Connected to database. Updating user...");
+
       const updatedUser = await updateUser(id, user);
+      console.log("User updated successfully:", JSON.stringify(updatedUser));
       return NextResponse.json({ message: "User updated", user: updatedUser });
     } catch (error) {
       console.error("Error updating user:", error);
-      return NextResponse.json(
-        { error: "Failed to update user" },
-        { status: 500 }
-      );
+      if (error instanceof Error) {
+        console.error("Error details:", error.message);
+        console.error("Error stack:", error.stack);
+        return NextResponse.json(
+          {
+            error: "Failed to update user",
+            details: error.message,
+            stack: error.stack,
+          },
+          { status: 500 }
+        );
+      } else {
+        console.error("Unknown error:", error);
+        return NextResponse.json(
+          {
+            error: "Failed to update user",
+            details: "An unknown error occurred",
+          },
+          { status: 500 }
+        );
+      }
     }
   }
 
