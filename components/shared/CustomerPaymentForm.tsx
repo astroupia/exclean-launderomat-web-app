@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/Label";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
-import { UploadDropzone } from "@uploadthing/react";
+import { UploadDropzone } from "@/utils/uploadthing";
 import { OurFileRouter } from "@/app/api/uploadthing/core"; // Make sure this path is correct
 
 interface CustomerPaymentFormProps {
@@ -73,11 +73,14 @@ const CustomerPaymentForm: React.FC<CustomerPaymentFormProps> = ({
           </div>
           <div>
             <Label className="text-sm font-medium">Upload Payment Image</Label>
-            <UploadDropzone<OurFileRouter, "imageUploader">  {/* Use "imageUploader" */}
+            <UploadDropzone
               endpoint="imageUploader"
               onClientUploadComplete={(res) => {
                 if (res && res.length > 0) {
-                  setFile(new File([res[0].url], res[0].name, { type: res[0].type }));
+                  // Assuming res[0].url contains the uploaded file URL, and res[0].name is available
+                  setFile(
+                    new File([res[0].url], res[0].name, { type: "image.png" }) // Replace with appropriate file type if known
+                  );
                   alert("Upload Completed");
                 }
               }}
