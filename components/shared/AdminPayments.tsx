@@ -70,13 +70,12 @@ const AdminPayments: React.FC = () => {
           <TableHeader>
             <TableRow>
               {/* Table headers for the payments table */}
-              <TableHead>Payment ID</TableHead>
-              <TableHead>Order ID</TableHead>
+
               <TableHead>Customer</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead>Method</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Bank Statement</TableHead>
+
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -84,11 +83,9 @@ const AdminPayments: React.FC = () => {
             {/* Mapping through the payments array to create rows for each payment */}
             {payments.map((payment) => (
               <TableRow key={payment.id}>
-                <TableCell>{payment.id}</TableCell>
-                <TableCell>{payment.orderId}</TableCell>
                 <TableCell>{payment.customer}</TableCell>
                 <TableCell>${payment.amount.toFixed(2)}</TableCell>
-                <TableCell>{payment.method}</TableCell>
+                <TableCell>Bank Transaction</TableCell>
                 <TableCell>
                   <Badge
                     variant={
@@ -102,7 +99,7 @@ const AdminPayments: React.FC = () => {
                     {payment.status}
                   </Badge>
                 </TableCell>
-                <TableCell>
+                {/* <TableCell>
                   {payment.bankStatementUrl && (
                     <Image
                       src={payment.bankStatementUrl}
@@ -115,7 +112,7 @@ const AdminPayments: React.FC = () => {
                       }
                     />
                   )}
-                </TableCell>
+                </TableCell> */}
                 <TableCell>
                   {payment.status === "Pending" && (
                     <>
