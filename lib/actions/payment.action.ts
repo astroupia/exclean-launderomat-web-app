@@ -1,73 +1,135 @@
 "use server";
 
 import { connectToDatabase } from "@/utils/database";
-import { PaymentParam } from "@/types";
-import Payment from "@/models/payment"; // Assuming you have a Payment model
-import { Payment as PaymentType } from "@/types";
+import Payment from "@/models/payment";
+import { uploadImage } from "@/lib/actions/image.action";
 
-const mapToPaymentParam = (doc: any): PaymentParam => ({
-  id: doc.id,
-  orderId: doc.orderId,
-  customer: doc.customer,
-  amount: doc.amount,
-  method: doc.method,
-  status: doc.status,
-  bankStatementUrl: doc.bankStatementUrl,
-});
+export async function getAllPayments() {
+  try {
+    await connectToDatabase();
 
-// Retrieves all payments
-export async function getAllPayments(): Promise<PaymentParam[]> {
-  await connectToDatabase();
-  const payments = await Payment.find().populate("orderId").lean();
-  return payments.map(mapToPaymentParam);
+    const payments = await Payment.find()
+      .populate("payer", "name email")
+      .populate("order", "orderNumber")
+      .sort({ payedDateTime: -1 });
+
+    return payments;
+  } catch (error) {
+    console.error("Error fetching payments:", error);
+    throw error;
+  }
 }
 
-// Updates a payment
+export async function createPayment(paymentData: {
+  id: string;
+  amount: number;
+  imageUrl: string;
+  status: "Pending" | "Approved" | "Rejected";
+  payer: string;
+  order: string;
+}) {
+  try {
+    await connectToDatabase();
+
+    const newPayment = await Payment.create(paymentData);
+    return newPayment;
+  } catch (error) {
+    console.error("Error creating payment:", error);
+    throw error;
+  }
+}
+
+export async function updatePaymentStatus(
+  paymentId: string,
+  status: "Pending" | "Approved" | "Rejected"
+) {
+  try {
+    await connectToDatabase();
+
+    const updatedPayment = await Payment.findOneAndUpdate(
+      { id: paymentId },
+      { status },
+      { new: true }
+    );
+
+    return updatedPayment;
+  } catch (error) {
+    console.error("Error updating payment status:", error);
+    throw error;
+  }
+}
+
+export async function getPaymentById(paymentId: string) {
+  try {
+    await connectToDatabase();
+
+    const payment = await Payment.findOne({ id: paymentId })
+      .populate("payer", "name email")
+      .populate("order", "orderNumber");
+
+    return payment;
+  } catch (error) {
+    console.error("Error fetching payment:", error);
+    throw error;
+  }
+}
+
+export async function uploadPayment(paymentData: {
+  amount: number;
+  payerUserId: string;
+  orderId: string;
+  image: File;
+}) {
+  try {
+    await connectToDatabase();
+
+    // Upload the image using Uploadthing
+    const imageUrl = await uploadImage(paymentData.image);
+
+    // Generate a unique ID for the payment
+    const paymentId = `PAY-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    // Create the payment object
+    const newPayment = await Payment.create({
+      id: paymentId,
+      amount: paymentData.amount,
+      imageUrl: imageUrl,
+      status: "Pending",
+      payer: paymentData.payerUserId,
+      order: paymentData.orderId,
+    });
+
+    // Populate payer and order information
+    await newPayment.populate("payer", "name email");
+    await newPayment.populate("order", "orderNumber");
+
+    return newPayment;
+  } catch (error) {
+    console.error("Error uploading payment:", error);
+    throw error;
+  }
+}
+
 export async function updatePayment(
-  id: string,
-  updateData: Partial<PaymentParam>
-): Promise<PaymentParam> {
-  await connectToDatabase();
-  const updatedPayment = await Payment.findByIdAndUpdate(id, updateData, {
-    new: true,
-    lean: true,
-  });
-  if (!updatedPayment) throw new Error("Payment not found");
-  return mapToPaymentParam(updatedPayment);
-}
+  paymentId: string,
+  updateData: { status: "Pending" | "Approved" | "Rejected" }
+) {
+  try {
+    await connectToDatabase();
 
-// Retrieves a payment by ID
-export async function getPaymentById(id: string): Promise<PaymentParam | null> {
-  await connectToDatabase();
-  const payment = await Payment.findById(id).populate("orderId").lean();
-  return payment ? mapToPaymentParam(payment) : null;
-}
+    const updatedPayment = await Payment.findOneAndUpdate(
+      { id: paymentId },
+      updateData,
+      { new: true }
+    )
+      .populate("payer", "name email")
+      .populate("order", "orderNumber");
 
-// Creates a new payment
-export async function createPayment(
-  paymentData: Omit<PaymentParam, "id">
-): Promise<PaymentParam> {
-  await connectToDatabase();
-  const newPayment = new Payment({ ...paymentData, id: `pay_${Date.now()}` });
-  const savedPayment = await newPayment.save();
-  return mapToPaymentParam(savedPayment.toObject());
-}
-
-// Deletes a payment by ID
-export async function deletePaymentById(
-  id: string
-): Promise<{ message: string }> {
-  await connectToDatabase();
-  const result = await Payment.findByIdAndDelete(id);
-  if (!result) throw new Error("Payment not found");
-  return { message: "Payment deleted successfully" };
-}
-
-export async function uploadPayment(
-  payment: PaymentParam
-): Promise<PaymentParam> {
-  await connectToDatabase();
-  const newPayment = new Payment(payment);
-  const savedPayment = await newPayment.save();
-  return mapToPaymentParam(savedPayment.toObject());
+    return updatedPayment;
+  } catch (error) {
+    console.error("Error updating payment:", error);
+    throw error;
+  }
 }

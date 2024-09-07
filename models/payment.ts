@@ -15,6 +15,6 @@ const PaymentSchema = new Schema({
   order: { type: Schema.Types.ObjectId, ref: "Order" },
 });
 
-const Payment = models.Payment || model("Paymnet", PaymentSchema);
+const Payment = models.Payment || model("Payment", PaymentSchema);
 
 export default Payment;
