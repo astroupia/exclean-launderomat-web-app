@@ -20,7 +20,7 @@ const Button: FC<ButtonProps> = ({
   const variantStyles = {
     primary: "bg-indigo-500 hover:bg-indigo-600 focus:ring-indigo-500",
     outline:
-      "border border-indigo-500 text-indigo-500 bg-white hover:bg-gray-50",
+      "border border-indigo-500 text-indigo-500 bg-white hover:bg-gray-60",
     secondary: "bg-gray-800 text-white hover:bg-gray-900",
   };
 
