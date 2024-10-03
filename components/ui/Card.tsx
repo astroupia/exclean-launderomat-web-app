@@ -7,8 +7,6 @@ interface CardProps {
 
 /**
  * Card component for containing content
- * @param {CardProps} props - The props for the card
- * @returns {JSX.Element} A styled card container
  */
 export const Card: React.FC<CardProps> = ({ children, className }) => {
   return (
