@@ -22,7 +22,7 @@ import CustomerOrderPreview from "@/components/shared/CustomerOrderPreview";
 import CustomerPaymentForm from "@/components/shared/CustomerPaymentForm";
 import { uploadPayment } from "@/lib/actions/payment.action";
 
-// Array of side button data for customers
+// Array of side button for customers
 const customerButtons: SideButtonProps[] = [
   {
     name: "Order",
